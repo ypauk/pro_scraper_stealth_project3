@@ -56,7 +56,7 @@ DEFAULT_CATEGORY = 'notebooks'
 DEFAULT_QUERY = ''
 
 # Кількість елементів для збору
-MAX_ITEMS = config.get("scraping", {}).get("max_items", 50)
+MAX_ITEMS = config.get("scraping", {}).get("max_items", 200)
 
 # Затримки між запитами (секунди)
 delays_cfg = config.get("delays", {"min": 2, "max": 5})

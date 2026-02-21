@@ -100,9 +100,15 @@ class RozetkaParser:
 
             # Пагінація
             "next_button": [
+                "a.pagination__next:not(.disabled)",
                 ".pagination__next",
                 "a[rel='next']",
                 ".show-more__button"
+            ],
+            "pagination": [
+                ".pagination",
+                ".pagination__list",
+                ".pagination__item"
             ]
         }
 
@@ -288,6 +294,29 @@ class RozetkaParser:
 
             logger.success(f"✅ [Rozetka] Успішно спарсено {len(items)} товарів")
 
+            # ===== ДІАГНОСТИКА ПАГІНАЦІЇ =====
+            try:
+                pagination = await page.query_selector(".pagination")
+                if pagination:
+                    pages = await pagination.query_selector_all(".pagination__item")
+                    page_texts = []
+                    for p in pages:
+                        text = await p.inner_text()
+                        if text.strip():
+                            page_texts.append(text)
+                    if page_texts:
+                        logger.info(f"📊 [Rozetka] Пагінація: знайдено сторінки {', '.join(page_texts[:5])}")
+
+                        # Знаходимо максимальний номер сторінки
+                        max_page = 1
+                        for text in page_texts:
+                            if text.isdigit():
+                                max_page = max(max_page, int(text))
+                        if max_page > 1:
+                            logger.info(f"📊 [Rozetka] Всього доступно сторінок: ~{max_page}")
+            except Exception as e:
+                logger.debug(f"ℹ️ [Rozetka] Не вдалося проаналізувати пагінацію: {e}")
+
         except Exception as e:
             self.stats['errors'] += 1
             logger.error(f"❌ [Rozetka] Критична помилка парсингу сторінки: {e}")
@@ -304,33 +333,176 @@ class RozetkaParser:
     async def get_next_page(self, page: Page) -> str | None:
         """
         Отримує URL наступної сторінки для пагінації
-
-        Args:
-            page: Поточна сторінка
-
-        Returns:
-            str: URL наступної сторінки або None
         """
         try:
-            # Спосіб 1: Класична пагінація з кнопкою "Далі"
-            next_button = await page.query_selector(".pagination__next:not(.disabled)")
-            if next_button:
-                href = await next_button.get_attribute("href")
-                if href:
-                    next_url = urljoin(page.url, href)
-                    logger.info(f"➡️ [Rozetka] Наступна сторінка: {next_url}")
-                    return next_url
+            current_url = page.url
+            logger.info(f"🔍 [Rozetka] Аналіз пагінації для: {current_url}")
 
-            # Спосіб 2: Infinite scroll з кнопкою "Показати ще"
-            show_more = await page.query_selector(".show-more__button")
-            if show_more and await show_more.is_visible():
-                await show_more.click()
-                logger.info("🔄 [Rozetka] Натиснуто 'Показати ще'")
-                await page.wait_for_timeout(2000)  # Чекаємо завантаження нових товарів
-                return page.url  # Повертаємо ту саму URL (сторінка оновилась)
+            # ===== СПОСІБ 1: Кнопка "Далі" (найнадійніший) =====
+            next_button_selectors = [
+                "a.pagination__next:not(.disabled)",
+                ".pagination__next:not(.disabled)",
+                "a[rel='next']:not(.disabled)"
+            ]
+
+            for selector in next_button_selectors:
+                next_button = await page.query_selector(selector)
+                if next_button:
+                    href = await next_button.get_attribute("href")
+                    if href:
+                        next_url = urljoin("https://rozetka.com.ua", href)
+                        logger.info(f"✅ [Rozetka] Знайдено кнопку 'Далі': {next_url}")
+
+                        # Перевіряємо, чи не зациклюємось
+                        if next_url == current_url:
+                            logger.warning("⚠️ [Rozetka] Виявлено зациклення пагінації")
+                            continue
+
+                        return next_url
+
+            # ===== СПОСІБ 2: Пошук за номером сторінки =====
+            pagination_items = await page.query_selector_all(".pagination__item")
+            if pagination_items:
+                # Знаходимо активну сторінку
+                active_page = None
+                active_number = None
+
+                for item in pagination_items:
+                    classes = await item.get_attribute("class") or ""
+                    if "_active" in classes or "active" in classes:
+                        active_page = item
+                        try:
+                            active_number = int(await item.inner_text())
+                        except:
+                            pass
+                        break
+
+                if active_number:
+                    logger.info(f"📄 [Rozetka] Поточна сторінка: {active_number}")
+
+                    # Шукаємо кнопку з номером active_number + 1
+                    for item in pagination_items:
+                        try:
+                            text = await item.inner_text()
+                            if text.strip() and text.isdigit():
+                                num = int(text)
+                                if num == active_number + 1:
+                                    href = await item.get_attribute("href")
+                                    if href:
+                                        next_url = urljoin("https://rozetka.com.ua", href)
+                                        logger.info(f"✅ [Rozetka] Знайдено сторінку {num}: {next_url}")
+                                        return next_url
+                        except:
+                            continue
+
+            # ===== СПОСІБ 3: Аналіз всіх сторінок пагінації =====
+            pagination_block = await page.query_selector(".pagination")
+            if pagination_block:
+                # Отримуємо всі номери сторінок
+                page_numbers = []
+                page_links = await pagination_block.query_selector_all("a.pagination__item")
+
+                for link in page_links:
+                    try:
+                        text = await link.inner_text()
+                        if text.strip() and text.isdigit():
+                            page_numbers.append(int(text))
+                    except:
+                        continue
+
+                if page_numbers:
+                    max_page = max(page_numbers)
+                    logger.info(f"📊 [Rozetka] Всього сторінок: {max_page}")
+
+                    # Визначаємо поточну сторінку з URL
+                    current_page = 1
+                    if "page=" in current_url:
+                        match = re.search(r'page=(\d+)', current_url)
+                        if match:
+                            current_page = int(match.group(1))
+                    elif "page-" in current_url:
+                        match = re.search(r'page-(\d+)', current_url)
+                        if match:
+                            current_page = int(match.group(1))
+
+                    logger.info(f"📄 [Rozetka] Поточна сторінка: {current_page}")
+
+                    if current_page < max_page:
+                        # Формуємо URL наступної сторінки
+                        if "page=" in current_url:
+                            next_url = re.sub(r'page=\d+', f'page={current_page + 1}', current_url)
+                        elif "page-" in current_url:
+                            next_url = re.sub(r'page-\d+', f'page-{current_page + 1}', current_url)
+                        else:
+                            # Додаємо параметр page
+                            if "?" in current_url:
+                                next_url = f"{current_url}&page={current_page + 1}"
+                            else:
+                                if current_url.endswith('/'):
+                                    next_url = f"{current_url}?page={current_page + 1}"
+                                else:
+                                    next_url = f"{current_url}/?page={current_page + 1}"
+
+                        logger.info(f"✅ [Rozetka] Перехід на сторінку {current_page + 1}: {next_url}")
+                        return next_url
+
+            # ===== СПОСІБ 4: Ручне формування URL (якщо нічого не знайшли) =====
+            if "page=" in current_url:
+                import re
+                match = re.search(r'page=(\d+)', current_url)
+                if match:
+                    current_page_num = int(match.group(1))
+                    next_page_num = current_page_num + 1
+
+                    # Обмежуємо кількість сторінок
+                    if next_page_num <= 50:
+                        next_url = re.sub(r'page=\d+', f'page={next_page_num}', current_url)
+                        logger.info(f"🔄 [Rozetka] Спробую сформувати URL вручну: {next_url}")
+
+                        # Швидка перевірка чи існує сторінка
+                        try:
+                            test_page = await page.context.new_page()
+                            await test_page.goto(next_url, wait_until="domcontentloaded", timeout=5000)
+                            title = await test_page.title()
+                            await test_page.close()
+
+                            if "404" not in title and "not found" not in title.lower():
+                                logger.info(f"✅ [Rozetka] Сторінка {next_page_num} існує")
+                                return next_url
+                            else:
+                                logger.info(f"❌ [Rozetka] Сторінка {next_page_num} не існує")
+                        except Exception as e:
+                            logger.warning(f"⚠️ [Rozetka] Не вдалося перевірити сторінку {next_page_num}: {e}")
+            else:
+                # Перша сторінка, формуємо URL для page=2 у правильному форматі
+                # Забираємо слеш в кінці якщо він є
+                base_url = current_url.rstrip('/')
+                next_url = f"{base_url}/page=2/"
+
+                logger.info(f"🔄 [Rozetka] Перша сторінка, пробую page=2: {next_url}")
+
+                # Швидка перевірка
+                try:
+                    test_page = await page.context.new_page()
+                    await test_page.goto(next_url, wait_until="domcontentloaded", timeout=5000)
+
+                    # Перевіряємо, чи є товари на сторінці
+                    has_products = await test_page.query_selector("rz-product-tile")
+                    title = await test_page.title()
+                    await test_page.close()
+
+                    if has_products and "404" not in title and "not found" not in title.lower():
+                        logger.info(f"✅ [Rozetka] Сторінка 2 існує і має товари")
+                        return next_url
+                    else:
+                        logger.info(f"ℹ️ [Rozetka] Сторінка 2 не має товарів або не існує")
+                except Exception as e:
+                    logger.info(f"❌ [Rozetka] Сторінка 2 не існує: {e}")
 
         except Exception as e:
-            logger.debug(f"ℹ️ [Rozetka] Пагінація не знайдена: {e}")
+            logger.error(f"❌ [Rozetka] Помилка пагінації: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
 
         logger.info(f"🏁 [Rozetka] Це остання сторінка")
         return None
