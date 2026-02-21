@@ -1,0 +1,3377 @@
+================================================================================
+🔥 ВАШ ПРОЕКТ - СТРУКТУРА ТА ФАЙЛИ
+📅 2026-02-19 21:34:40
+================================================================================
+
+📁 СТРУКТУРА ВАШОГО ПРОЕКТУ:
+--------------------------------------------------------------------------------
+
+📁 pro_scraper_stealth_project3/
+  📄 🔒 .gitignore (GITIGNORE)
+  📄 combine_project.py
+  📄 ⚙️ config.yaml (CONFIG)
+  📄 main.py
+  📄 README.md
+  📄 requirements.txt
+  📁 .idea/
+    📄 🔒 .gitignore (GITIGNORE)
+  📁 .venv/
+    📄 🔒 .gitignore (GITIGNORE)
+  📁 src/
+    📄 __init__.py
+    📄 client.py
+    📄 exporter.py
+    📄 models.py
+    📄 parser.py
+    📄 proxy_fetcher.py
+    📄 proxy_monitor.py
+    📄 proxy_utils.py
+    📄 scraper.py
+    📄 semaphore_manager.py
+    📄 settings.py
+    📄 state_manager.py
+    📄 stealth.py
+    📄 stealth_config.py
+    📄 utils.py
+
+================================================================================
+
+📄 ВМІСТ ВАШИХ ФАЙЛІВ:
+================================================================================
+
+
+================================================================================
+📄 🔒 ФАЙЛ: .gitignore (GITIGNORE)
+================================================================================
+
+# Python (тимчасові файли компіляції)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Віртуальне середовище (це замовник встановить сам через requirements.txt)
+.venv/
+venv/
+ENV/
+
+# Конфіденційні дані (твоя сесія авторизації)
+auth.json
+
+# Результати скрапінгу та логи
+data/*.csv
+data/*.json
+data/*.log
+!data/.gitkeep
+
+# Налаштування IDE (PyCharm, VS Code)
+.idea/
+.vscode/
+
+# Системні файли
+.DS_Store
+Thumbs.db
+
+config.yaml
+
+.env
+*.env
+data/valid_proxies.json
+__pycache__/
+
+================================================================================
+📄 🔒 ФАЙЛ: .idea\.gitignore (GITIGNORE)
+================================================================================
+
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+
+================================================================================
+📄 🔒 ФАЙЛ: .venv\.gitignore (GITIGNORE)
+================================================================================
+
+# created by virtualenv automatically
+*
+
+================================================================================
+📄 ФАЙЛ: combine_project.py
+================================================================================
+
+# dump_my_structure.py
+"""
+Створює дамп зі структурою проекту і вмістом тільки ваших файлів
+Виправлена версія з правильною структурою
+"""
+
+import os
+from pathlib import Path
+from datetime import datetime
+
+
+def dump_my_structure():
+    root_dir = Path(__file__).parent
+    output_file = root_dir / "my_project_structure.txt"
+
+    print(f"📁 Створюю дамп структури вашого проекту: {output_file}")
+    print(f"📂 Робоча папка: {root_dir}")
+
+    # ТІЛЬКИ ваші файли - розширення, які ви створювали
+    extensions = {'.py', '.yaml', '.yml', '.env', '.md', '.txt', '.json'}
+
+    # Папки, які ТРЕБА включити (ваш код)
+    include_dirs = {'src', 'test'}
+
+    # Папки, які ТРЕБА виключити
+    exclude_dirs = {
+        '__pycache__', '.venv', 'venv', 'env', '.git', '.idea',
+        'node_modules', 'dist', 'build', '.pytest_cache', 'data', 'logs'
+    }
+
+    # Функція для перевірки чи файл ваш
+    def is_my_file(path):
+        rel_path = path.relative_to(root_dir)
+        parts = rel_path.parts
+
+        # ⚠️ СПЕЦІАЛЬНА ПЕРЕВІРКА ДЛЯ .gitignore
+        if path.name == '.gitignore':
+            return True
+
+        # Виключаємо системні папки
+        if any(excl in str(rel_path) for excl in exclude_dirs):
+            return False
+
+        # Якщо файл в src або test - беремо
+        if len(parts) > 0 and parts[0] in include_dirs:
+            return True
+
+        # Файли в корені проекту
+        if len(parts) == 1:
+            # Важливі файли в корені
+            if path.name in ['main.py', 'config.yaml', '.env', 'requirements.txt',
+                             'README.md', 'dump_my_structure.py', 'combine_project.py']:
+                return True
+            # Файли з правильним розширенням
+            if path.suffix in extensions:
+                return True
+
+        return False
+
+    # Збираємо всі ваші файли і папки
+    my_files = []
+    my_dirs = set()
+
+    print("\n📂 ЗБІР ФАЙЛІВ:")
+    for path in sorted(root_dir.rglob('*')):
+        if path.is_file() and is_my_file(path):
+            my_files.append(path)
+            print(f"   + {path.relative_to(root_dir)}")
+            # Додаємо всі батьківські папки
+            parent = path.parent
+            while parent != root_dir:
+                my_dirs.add(parent)
+                parent = parent.parent
+
+    # Сортуємо
+    my_files.sort()
+    my_dirs = sorted(my_dirs)
+
+    # Відкриваємо файл для запису
+    with open(output_file, 'w', encoding='utf-8') as out:
+        # Заголовок
+        out.write("=" * 80 + "\n")
+        out.write("🔥 ВАШ ПРОЕКТ - СТРУКТУРА ТА ФАЙЛИ\n")
+        out.write(f"📅 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        out.write("=" * 80 + "\n\n")
+
+        # ===== СТРУКТУРА =====
+        out.write("📁 СТРУКТУРА ВАШОГО ПРОЕКТУ:\n")
+        out.write("-" * 80 + "\n\n")
+
+        def print_structure(dir_path, level=0):
+            """Рекурсивно виводить структуру папок без дублювання"""
+            indent = "  " * level
+
+            # Виводимо назву папки
+            if level == 0:
+                out.write(f"{indent}📁 {root_dir.name}/\n")
+            else:
+                out.write(f"{indent}📁 {dir_path.name}/\n")
+
+            # Збираємо всі підпапки і файли в цій папці
+            items = []
+            subdirs = []
+
+            # Спочатку збираємо всі підпапки
+            for path in sorted(dir_path.iterdir()):
+                if path.is_dir():
+                    if path in my_dirs or any(f.parent == path for f in my_files):
+                        subdirs.append(('dir', path))
+
+            # Потім збираємо файли в поточній папці
+            files = []
+            for path in sorted(dir_path.iterdir()):
+                if path.is_file() and path in my_files:
+                    files.append(('file', path))
+
+            # Спочатку виводимо файли
+            for item_type, item_path in files:
+                if item_path.name == '.gitignore':
+                    out.write(f"{indent}  📄 🔒 {item_path.name} (GITIGNORE)\n")
+                elif item_path.name == '.env':
+                    out.write(f"{indent}  📄 🔐 {item_path.name} (ENV)\n")
+                elif item_path.name == 'config.yaml':
+                    out.write(f"{indent}  📄 ⚙️ {item_path.name} (CONFIG)\n")
+                else:
+                    out.write(f"{indent}  📄 {item_path.name}\n")
+
+            # Потім виводимо підпапки (рекурсивно)
+            for item_type, item_path in subdirs:
+                print_structure(item_path, level + 1)
+
+        # Починаємо з кореня
+        print_structure(root_dir)
+
+        # ===== ВМІСТ =====
+        out.write("\n" + "=" * 80 + "\n\n")
+        out.write("📄 ВМІСТ ВАШИХ ФАЙЛІВ:\n")
+        out.write("=" * 80 + "\n\n")
+
+        for path in my_files:
+            rel_path = path.relative_to(root_dir)
+            out.write(f"\n{'=' * 80}\n")
+
+            if path.name == '.gitignore':
+                out.write(f"📄 🔒 ФАЙЛ: {rel_path} (GITIGNORE)\n")
+            elif path.name == '.env':
+                out.write(f"📄 🔐 ФАЙЛ: {rel_path} (ENV)\n")
+            elif path.name == 'config.yaml':
+                out.write(f"📄 ⚙️ ФАЙЛ: {rel_path} (CONFIG)\n")
+            else:
+                out.write(f"📄 ФАЙЛ: {rel_path}\n")
+
+            out.write(f"{'=' * 80}\n\n")
+            try:
+                content = path.read_text(encoding='utf-8')
+                out.write(content)
+                if not content.endswith('\n'):
+                    out.write('\n')
+            except Exception as e:
+                out.write(f"[Помилка читання: {e}]\n")
+
+        # ===== СТАТИСТИКА =====
+        out.write("\n" + "=" * 80 + "\n")
+        out.write("📊 СТАТИСТИКА:\n")
+        out.write("=" * 80 + "\n")
+        out.write(f"📁 Папок з кодом: {len(my_dirs)}\n")
+        out.write(f"📄 Всього файлів: {len(my_files)}\n")
+
+        # Статистика по типах
+        stats = {}
+        for f in my_files:
+            ext = f.suffix or '(без розширення)'
+            stats[ext] = stats.get(ext, 0) + 1
+
+        out.write("\n📊 По розширеннях:\n")
+        for ext, count in sorted(stats.items()):
+            out.write(f"  {ext}: {count} файлів\n")
+
+        # Статистика по папках
+        out.write("\n📊 По папках:\n")
+        dir_stats = {}
+        for f in my_files:
+            parent = f.parent.name or 'root'
+            dir_stats[parent] = dir_stats.get(parent, 0) + 1
+
+        for dir_name, count in sorted(dir_stats.items()):
+            out.write(f"  📁 {dir_name}: {count} файлів\n")
+
+        gitignore_count = len([f for f in my_files if f.name == '.gitignore'])
+        out.write(f"\n🔒 .gitignore: {'Є' if gitignore_count > 0 else 'НЕМАЄ'}\n")
+        out.write("=" * 80 + "\n")
+
+    print(f"\n✅ ГОТОВО! Файл: {output_file}")
+    print(f"📊 Розмір: {output_file.stat().st_size / 1024:.1f} KB")
+
+    # Підсумок
+    gitignore_in_dump = any(f.name == '.gitignore' for f in my_files)
+    if gitignore_in_dump:
+        print(f"🔒 .gitignore УСПІШНО ВКЛЮЧЕНО!")
+    else:
+        print(f"❌ .gitignore НЕ ВКЛЮЧЕНО!")
+
+
+if __name__ == "__main__":
+    dump_my_structure()
+
+================================================================================
+📄 ⚙️ ФАЙЛ: config.yaml (CONFIG)
+================================================================================
+
+# Налаштування скрапінгу
+scraping:
+  start_url: "https://books.toscrape.com"
+  max_items: 50
+  concurrency: 1
+
+# Паузи між діями (секунди)
+delays:
+  min: 2
+  max: 5
+
+# Налаштування браузера
+browser:
+  headless: false
+  timeout: 60000
+
+# Селектори для books.toscrape.com
+selectors:
+  book_card: "article.product_pod"
+  title: "h3 a"
+  price: "p.price_color"
+  availability: ".instock.availability"
+  rating: "p.star-rating"
+  image: "div.image_container img"
+  next_button: "li.next a"
+
+# Проксі (ваші дані)
+proxies:
+  - server: "http://31.59.20.176:6754"
+    username: "uaeomrhe"
+    password: "q5e8bmkvkeox"
+  # ... решта проксі
+
+================================================================================
+📄 ФАЙЛ: main.py
+================================================================================
+
+# main.py
+import asyncio
+import sys
+import argparse
+from pathlib import Path
+from loguru import logger
+from datetime import datetime
+
+# Додаємо шлях до проекту
+sys.path.append(str(Path(__file__).parent))
+
+from src.scraper import Scraper
+from src.exporter import Exporter
+from src.settings import LOG_DIR, MAX_ITEMS, VALID_PROXY_LIST
+from src.stealth import get_stealth_for_site
+
+
+def setup_logging():
+    """Налаштування логування"""
+    logger.remove()
+
+    # Консольне логування (кольорове)
+    logger.add(
+        sys.stdout,
+        format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        level="INFO",
+        colorize=True
+    )
+
+    # Файлове логування (детальне)
+    log_file = LOG_DIR / f"olx_scraper_{datetime.now().strftime('%Y%m%d')}.log"
+    logger.add(
+        log_file,
+        rotation="10 MB",
+        retention="10 days",
+        level="DEBUG",
+        encoding="utf-8",
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}"
+    )
+
+    return log_file
+
+
+def parse_arguments():
+    """Парсинг аргументів командного рядка"""
+    parser = argparse.ArgumentParser(description="Скрапер для OLX.ua")
+
+    parser.add_argument(
+        '--max-items',
+        type=int,
+        default=MAX_ITEMS,
+        help=f'Максимальна кількість оголошень (за замовчуванням: {MAX_ITEMS})'
+    )
+
+    parser.add_argument(
+        '--concurrent',
+        type=int,
+        default=3,
+        help='Максимальна кількість одночасних сторінок (за замовчуванням: 3)'
+    )
+
+    parser.add_argument(
+        '--headless',
+        action='store_true',
+        help='Запуск в headless режимі (без вікна браузера)'
+    )
+
+    parser.add_argument(
+        '--no-proxy',
+        action='store_true',
+        help='Вимкнути використання проксі (не рекомендується)'
+    )
+
+    parser.add_argument(
+        '--format',
+        type=str,
+        default='csv',
+        choices=['csv', 'json', 'both'],
+        help='Формат збереження результатів (csv, json, both)'
+    )
+
+    parser.add_argument(
+        '--delay',
+        type=float,
+        default=3.0,
+        help='Мінімальна затримка між запитами в секундах'
+    )
+
+    parser.add_argument(
+        '--query',
+        type=str,
+        default='ноутбук',
+        help='Пошуковий запит (наприклад: ноутбук, смартфон, авто)'
+    )
+
+    parser.add_argument(
+        '--city',
+        type=str,
+        default='',
+        help='Місто для пошуку (наприклад: київ, львів, харків)'
+    )
+
+    parser.add_argument(
+        '--debug',
+        action='store_true',
+        help='Режим налагодження (детальні логи)'
+    )
+
+    return parser.parse_args()
+
+
+def build_olx_url(query: str, city: str = "") -> str:
+    """
+    Формує URL для OLX на основі пошукового запиту
+
+    Args:
+        query: Пошуковий запит
+        city: Місто (опціонально)
+
+    Returns:
+        str: URL для скрапінгу
+    """
+    base_url = "https://www.olx.ua/uk/list"
+
+    if city:
+        # Додаємо місто до URL
+        return f"{base_url}/q-{query}/?search%5Bcity%5D={city}"
+    else:
+        return f"{base_url}/q-{query}/"
+
+
+async def main():
+    """Головна функція запуску скрапера для OLX.UA"""
+
+    # 1. Парсимо аргументи командного рядка
+    args = parse_arguments()
+
+    # 2. Налаштовуємо логування
+    log_file = setup_logging()
+
+    # 3. Формуємо URL для пошуку
+    search_url = build_olx_url(args.query, args.city)
+
+    logger.info("=" * 60)
+    logger.info("🚀 ЗАПУСК СКРАПЕРА ДЛЯ OLX.UA")
+    logger.info("=" * 60)
+    logger.info(f"🔍 Пошуковий запит: {args.query}")
+    if args.city:
+        logger.info(f"🏙️ Місто: {args.city}")
+    logger.info(f"🔗 URL: {search_url}")
+    logger.info(f"📊 Максимум оголошень: {args.max_items}")
+    logger.info(f"🔄 Макс. одночасних сторінок: {args.concurrent}")
+    logger.info(f"📁 Лог-файл: {log_file}")
+
+    if args.headless:
+        logger.info("🖥️ Режим: без вікна браузера (headless)")
+    else:
+        logger.info("🖥️ Режим: з вікном браузера")
+
+    if args.no_proxy:
+        logger.warning("⚠️ Проксі ВИМКНЕНО! Це небезпечно для вашого IP!")
+    else:
+        logger.info(f"🔌 Проксі: {len(VALID_PROXY_LIST)} шт.")
+
+    logger.info("=" * 60)
+
+    # 4. Перевіряємо наявність проксі
+    if not args.no_proxy and not VALID_PROXY_LIST:
+        logger.error("❌ Немає доступних проксі! Використовуйте --no-proxy або перевірте налаштування .env файлу")
+        return
+
+    # 5. Створюємо стелс для українського сайту
+    try:
+        stealth = get_stealth_for_site('ukraine')
+        logger.success("🕵️ Стелс для OLX створено")
+    except Exception as e:
+        logger.error(f"❌ Помилка створення стелсу: {e}")
+        return
+
+    # 6. Ініціалізуємо скрапер
+    scraper = Scraper(
+        max_items=args.max_items,
+        stealth=stealth,
+        site_name="OLX",
+        max_concurrent=args.concurrent
+    )
+
+    # 7. Запускаємо скрапер
+    try:
+        logger.info(f"🔄 Початок збору даних з OLX...")
+        start_time = datetime.now()
+
+        results = await scraper.run(search_url)
+
+        elapsed = datetime.now() - start_time
+
+        # 8. Обробка результатів
+        if results:
+            logger.success("=" * 60)
+            logger.success("🏁 СКРАПЕР УСПІШНО ЗАВЕРШЕНО!")
+            logger.info(f"📊 Всього зібрано: {len(results)} оголошень")
+
+            # Статистика по цінах
+            total_sum = sum(item.price_value for item in results)
+            avg_price = total_sum / len(results) if results else 0
+            min_price = min(item.price_value for item in results)
+            max_price = max(item.price_value for item in results)
+
+            logger.info(f"💰 Середня ціна: {avg_price:,.0f} грн")
+            logger.info(f"💵 Мінімальна ціна: {min_price:,.0f} грн")
+            logger.info(f"💎 Максимальна ціна: {max_price:,.0f} грн")
+            logger.info(f"⏱️ Час виконання: {elapsed.total_seconds():.1f} сек")
+
+            # Зберігаємо результати
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            query_slug = args.query.replace(' ', '_')
+            city_slug = f"_{args.city}" if args.city else ""
+            base_filename = f"olx_{query_slug}{city_slug}_{timestamp}"
+
+            saved_files = []
+
+            if args.format in ['csv', 'both']:
+                csv_file = Exporter.to_csv(results, f"{base_filename}.csv")
+                saved_files.append(csv_file)
+
+            if args.format in ['json', 'both']:
+                json_file = Exporter.to_json(results, f"{base_filename}.json")
+                saved_files.append(json_file)
+
+            logger.info(f"📁 Результати збережено в data/:")
+            for file in saved_files:
+                logger.info(f"   - {file}")
+            logger.success("=" * 60)
+
+            # Показуємо перші 5 оголошень для прикладу
+            logger.info("📋 Приклади зібраних оголошень:")
+            for i, item in enumerate(results[:5], 1):
+                # Скорочуємо назву до 50 символів
+                short_title = item.title[:50] + "..." if len(item.title) > 50 else item.title
+                logger.info(f"   {i}. {short_title} | {item.price} | {item.location}")
+
+            # Додаткова статистика
+            today_count = sum(1 for item in results if item.is_today)
+            yesterday_count = sum(1 for item in results if item.is_yesterday)
+
+            if today_count > 0 or yesterday_count > 0:
+                logger.info(f"📊 Свіжі оголошення:")
+                if today_count > 0:
+                    logger.info(f"   • Сьогодні: {today_count}")
+                if yesterday_count > 0:
+                    logger.info(f"   • Вчора: {yesterday_count}")
+
+            return results
+        else:
+            logger.warning("🤔 Оголошення не знайдено. Можливі причини:")
+            logger.warning("   • Змінились селектори на сайті")
+            logger.warning("   • Проблеми з підключенням")
+            logger.warning("   • Блокування від OLX")
+            logger.warning("   • Немає оголошень за запитом '{args.query}'")
+            return None
+
+    except KeyboardInterrupt:
+        logger.warning("\n⏹️ Виконання перервано користувачем")
+        logger.info("💡 Прогрес збережено в checkpoint.json")
+        return None
+    except Exception as e:
+        logger.critical(f"💥 Критична помилка: {e}")
+        if args.debug:
+            import traceback
+            logger.error(traceback.format_exc())
+        logger.info("🆘 Якщо помилка повторюється, перевірте:")
+        logger.info("   • Налаштування проксі в .env")
+        logger.info("   • Доступність сайту olx.ua")
+        logger.info("   • Селектори в парсері")
+        return None
+
+
+def quick_test():
+    """Швидкий тест для перевірки налаштувань"""
+    logger.info("=" * 50)
+    logger.info("🔧 ШВИДКИЙ ТЕСТ НАЛАШТУВАНЬ")
+    logger.info("=" * 50)
+
+    # Перевіряємо імпорти
+    try:
+        from src.settings import VALID_PROXY_LIST
+        from src.models import OLXItem
+        from src.parser import OLXParser
+
+        logger.success("✅ Всі модулі імпортовано успішно")
+        logger.info(f"📊 Проксі: {len(VALID_PROXY_LIST)} шт.")
+
+        if len(VALID_PROXY_LIST) == 0:
+            logger.warning("⚠️ Немає проксі! Перевірте .env файл")
+
+        # Перевіряємо створення моделі
+        test_item = OLXItem(
+            title="Тестове оголошення",
+            price="1 000 грн.",
+            location="Київ",
+            date="Сьогодні о 12:00",
+            url="https://www.olx.ua/test"
+        )
+        logger.success(f"✅ Модель OLXItem працює: {test_item.price_value} грн")
+
+    except Exception as e:
+        logger.error(f"❌ Помилка в налаштуваннях: {e}")
+
+    logger.info("=" * 50)
+    logger.info("✅ Тест завершено")
+
+
+def print_help():
+    """Виводить довідку по використанню"""
+    help_text = """
+    🔷 СКРАПЕР ДЛЯ OLX.UA 🔷
+
+    Використання:
+      python main.py [опції]
+
+    Приклади:
+      python main.py                                      # Ноутбуки по всій Україні
+      python main.py --query ноутбук --max-items 100     # 100 ноутбуків
+      python main.py --query смартфон --city київ        # Смартфони в Києві
+      python main.py --headless --format json            # Без вікна, JSON формат
+      python main.py --concurrent 2 --delay 5            # Повільніше, але безпечніше
+      python main.py --debug                              # Детальні логи
+
+    Опції:
+      --max-items N         Максимальна кількість оголошень (зазвичай 20-50 на сторінку)
+      --concurrent N        Макс. одночасних сторінок (1-3, більше = ризик блокування)
+      --headless           Запуск без вікна браузера (швидше, але складніше дебажити)
+      --no-proxy           Вимкнути проксі (НЕБЕЗПЕЧНО для вашого IP!)
+      --format FORMAT      Формат збереження (csv, json, both)
+      --delay N           Мінімальна затримка між запитами в секундах
+      --query QUERY       Пошуковий запит (ноутбук, смартфон, авто, квартира...)
+      --city CITY         Місто для пошуку (київ, львів, харків, одеса...)
+      --debug             Режим налагодження (детальні логи)
+      --help              Ця довідка
+    """
+    print(help_text)
+
+
+if __name__ == "__main__":
+    # Якщо передано аргумент --help, показуємо довідку
+    if '--help' in sys.argv or '-h' in sys.argv:
+        print_help()
+        sys.exit(0)
+
+    # Швидкий тест (розкоментуй якщо треба перевірити налаштування)
+    # quick_test()
+
+    # Запуск основної програми
+    asyncio.run(main())
+
+================================================================================
+📄 ФАЙЛ: README.md
+================================================================================
+
+# Professional Async Web Scraper (E-commerce)
+
+A high-performance, modular web scraping system built with **Python** and **Playwright**. Designed with a focus on data integrity, resilience, and ease of configuration.
+
+## 🚀 Key Features
+- **Async Engine:** Powered by `asyncio` and `Playwright` for fast, non-blocking data extraction.
+- **Resilience:** Built-in **Checkpoint System** (JSON-based) to resume progress from the last page after any interruption or network failure.
+- **Data Validation:** Uses **Pydantic** models to ensure 100% accurate data types (prices, ratings, stocks).
+- **Flexible Configuration:** All selectors and URLs are managed via a `config.yaml` file—no need to touch the code to change targets.
+- **Professional Logging:** Detailed execution logs using `loguru`.
+
+## 🛠 Tech Stack
+- **Language:** Python 3.12+
+- **Browser Automation:** Playwright (Chromium)
+- **Data Handling:** Pydantic, CSV, YAML
+- **Logging:** Loguru
+
+## 📁 Project Structure
+```text
+├── src/
+│   ├── models.py       # Data structures & validation
+│   ├── parser.py       # HTML parsing logic
+│   ├── scraper.py      # Core scraping engine & state management
+│   └── settings.py     # Configuration loader
+├── config.yaml         # Active configuration (Scraper settings & CSS selectors)
+├── main.py             # Entry point
+└── data/               # Output directory (CSV & Checkpoints)
+```
+
+##Installation & Usage
+Clone the repository:
+```bash
+git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
+cd your-repo-name
+```
+
+## Set up virtual environment & install dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+playwright install chromium
+```
+
+## Configure the scraper: Edit config.yaml to set your start_url and CSS selectors.
+
+Run the scraper:
+```bash
+python main.py
+```
+
+## 📊 Output Example
+The scraper generates a structured CSV file in the data/ folder: | title | price | rating | availability | url | | :--- | :--- | :--- | :--- | :--- | | A Light in the Attic | £51.77 | Three | In stock | https://... |
+
+## Author: Yaroslav Pauk 
+
+================================================================================
+📄 ФАЙЛ: requirements.txt
+================================================================================
+
+# Ядро для роботи з браузером
+playwright==1.40.0
+
+# Валідація даних та моделі
+pydantic==2.4.1
+
+# Професійне логування (кольорові повідомлення в консолі)
+loguru==0.7.2
+
+# Додаткова бібліотека для роботи з Excel (якщо захочеш зберігати в .xlsx)
+#pandas==2.1.3
+openpyxl==3.1.2
+
+fake-useragent
+pyyaml
+requests
+
+#pip install -r requirements.txt
+#playwright install chromium
+
+================================================================================
+📄 ФАЙЛ: src\__init__.py
+================================================================================
+
+
+
+================================================================================
+📄 ФАЙЛ: src\client.py
+================================================================================
+
+# src/client.py
+import os
+import random
+from playwright.async_api import async_playwright
+# Видалено AUTH_FILE з імпорту
+from src.settings import HEADLESS, USER_AGENTS, TIMEOUT, VALID_PROXY_LIST
+from loguru import logger
+from fake_useragent import UserAgent
+
+
+class BrowserClient:
+    def __init__(self, proxy: dict = None):
+        self.playwright = None
+        self.browser = None
+
+        # ===== ЖОРСТКА ПЕРЕВІРКА ПРОКСІ =====
+        if proxy is None:
+            if VALID_PROXY_LIST:
+                self.proxy = VALID_PROXY_LIST[0]
+                logger.info(f"🔌 Автоматично вибрано проксі: {self.proxy['server']}")
+            else:
+                logger.critical("=" * 60)
+                logger.critical("🔴 КРИТИЧНА ПОМИЛКА: СПРОБА СТВОРЕННЯ КЛІЄНТА БЕЗ ПРОКСІ!")
+                logger.critical("=" * 60)
+                logger.critical("🛡️ ЗАХИСТ: Програма буде зупинена")
+                logger.critical("💡 Рішення: Додайте проксі в config.yaml або перевірте .env файл")
+                logger.critical("=" * 60)
+                raise Exception("BrowserClient не може бути створений без проксі")
+        else:
+            self.proxy = proxy
+
+        # Ініціалізуємо генератор випадкових User-Agents
+        try:
+            self.ua_generator = UserAgent()
+            logger.success("✅ fake-useragent успішно ініціалізовано")
+        except Exception as e:
+            logger.warning(f"⚠️ Не вдалося ініціалізувати fake-useragent: {e}. Буде використано ручний список.")
+            self.ua_generator = None
+
+        # Логуємо статус проксі при ініціалізації
+        if self.proxy:
+            masked_proxy = self._mask_proxy_data(self.proxy)
+            logger.info(f"🔌 Клієнт ініціалізовано з проксі: {masked_proxy}")
+
+            proxy_server = self.proxy.get('server', '')
+            if 'http://' in proxy_server:
+                logger.debug("📡 Тип проксі: HTTP")
+            elif 'https://' in proxy_server:
+                logger.debug("📡 Тип проксі: HTTPS")
+            elif 'socks' in proxy_server.lower():
+                logger.debug("📡 Тип проксі: SOCKS")
+
+            if 'username' in self.proxy and 'password' in self.proxy:
+                logger.debug("🔐 Проксі вимагає автентифікацію (логін/пароль)")
+        else:
+            logger.critical("🔴 КРИТИЧНО: КЛІЄНТ СТВОРЕНО БЕЗ ПРОКСІ!")
+            raise Exception("Клієнт не може працювати без проксі")
+
+    def _mask_proxy_data(self, proxy: dict) -> dict:
+        """Маскує чутливі дані проксі для безпечного логування"""
+        masked = proxy.copy()
+        if 'username' in masked:
+            username = masked['username']
+            masked['username'] = f"{username[:3]}***" if len(username) > 3 else "***"
+        if 'password' in masked:
+            masked['password'] = '********'
+        return masked
+
+    def get_random_ua(self) -> str:
+        """Метод для отримання надійного User-Agent"""
+        if self.ua_generator:
+            try:
+                ua = self.ua_generator.random
+                ua_short = ua[:50] + "..." if len(ua) > 50 else ua
+                logger.info(f"🌐 Використано динамічний User-Agent: {ua_short}")
+                return ua
+            except Exception as e:
+                logger.warning(f"📡 Збій мережевої бази User-Agents: {e}")
+
+        fallback_ua = random.choice(USER_AGENTS)
+        logger.info(f"💾 Використано User-Agent з ручного списку: {fallback_ua[:50]}...")
+        return fallback_ua
+
+    async def start(self):
+        """Запуск браузера з обов'язковим проксі"""
+        self.playwright = await async_playwright().start()
+        logger.debug("🎭 Playwright запущено")
+
+        # ===== ФІНАЛЬНА ПЕРЕВІРКА ПЕРЕД ЗАПУСКОМ =====
+        if not self.proxy:
+            logger.critical("🔴 СПРОБА ЗАПУСКУ БРАУЗЕРА БЕЗ ПРОКСІ!")
+            logger.critical("🛡️ ЗАХИСТ: Запуск заборонено")
+            logger.debug(f"VALID_PROXY_LIST: {VALID_PROXY_LIST}")
+            logger.debug(f"self.proxy: {self.proxy}")
+            raise Exception("Запуск браузера без проксі заборонено!")
+
+        launch_options = {
+            "headless": HEADLESS,
+            "proxy": self._mask_proxy_data(self.proxy) if self.proxy else None
+        }
+        logger.info(f"🔌 ЗАПУСК З ПРОКСІ: {self._mask_proxy_data(self.proxy)['server']}")
+        logger.debug(f"⚙️ Параметри запуску браузера: {launch_options}")
+
+        try:
+            self.browser = await self.playwright.chromium.launch(
+                headless=HEADLESS,
+                proxy=self.proxy if self.proxy else None
+            )
+
+            browser_version = self.browser.version
+            logger.info(f"🚀 Браузер Chromium v{browser_version} запущено")
+            logger.success(f"🔌 Проксі підключено: {self._mask_proxy_data(self.proxy)['server']}")
+
+        except Exception as e:
+            logger.error(f"❌ Помилка запуску браузера: {e}")
+            if self.proxy:
+                logger.error(f"🔴 Можлива проблема з проксі: {self._mask_proxy_data(self.proxy)['server']}")
+                logger.error("💡 Перевір: 1) Чи працює проксі? 2) Чи правильний формат?")
+            raise e
+
+    async def stop(self):
+        """Повне закриття браузера"""
+        try:
+            if self.browser:
+                await self.browser.close()
+                logger.debug("🛑 Браузер закрито")
+            if self.playwright:
+                await self.playwright.stop()
+                logger.debug("🎭 Playwright зупинено")
+            logger.success("🛑 Асинхронний клієнт повністю зупинено.")
+        except Exception as e:
+            logger.error(f"❌ Помилка при зупинці клієнта: {e}")
+
+    async def check_proxy_health(self) -> bool:
+        """Перевіряє працездатність проксі через httpbin"""
+        if not self.proxy:
+            logger.critical("🔴 НЕМАЄ ПРОКСІ ДЛЯ ПЕРЕВІРКИ!")
+            return False
+
+        try:
+            context = await self.browser.new_context()
+            page = await context.new_page()
+
+            logger.info(f"🩺 Перевірка працездатності проксі: {self._mask_proxy_data(self.proxy)['server']}")
+            await page.goto("https://httpbin.org/ip", timeout=10000)
+            content = await page.text_content("body")
+
+            await context.close()
+            logger.success(f"✅ Проксі працює! Відповідь: {content}")
+            return True
+
+        except Exception as e:
+            logger.error(f"❌ Проксі не працює: {e}")
+            return False
+
+================================================================================
+📄 ФАЙЛ: src\exporter.py
+================================================================================
+
+import csv
+import json
+from typing import Any
+from src.settings import DATA_DIR
+from loguru import logger
+
+
+class Exporter:
+    @staticmethod
+    def append_to_csv(item: Any, filename: str = "live_results.csv"):
+        """Append a single record to a CSV file (works with any Pydantic model)"""
+        filepath = DATA_DIR / filename
+        file_exists = filepath.exists()
+
+        try:
+            # Use model_dump() to convert Pydantic object to a dictionary
+            row = item.model_dump()
+            fieldnames = row.keys()
+
+            with open(filepath, 'a', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                if not file_exists:
+                    writer.writeheader()
+                writer.writerow(row)
+        except Exception as e:
+            logger.error(f"❌ Error while appending to CSV: {e}")
+
+    @staticmethod
+    def to_csv(data: list[Any], filename: str = "results.csv"):
+        """Save the entire list of objects to a CSV file"""
+        if not data:
+            logger.warning("⚠️ No data available for CSV export.")
+            return
+
+        filepath = DATA_DIR / filename
+        try:
+            fieldnames = data[0].model_dump().keys()
+            with open(filepath, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                for item in data:
+                    writer.writerow(item.model_dump())
+            logger.success(f"💾 All data successfully saved to CSV: {filepath}")
+        except Exception as e:
+            logger.error(f"❌ Error during full CSV export: {e}")
+
+    @staticmethod
+    def to_json(data: list[Any], filename: str = "results.json"):
+        """Save data to a JSON file"""
+        if not data:
+            return
+
+        filepath = DATA_DIR / filename
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json_data = [item.model_dump() for item in data]
+                json.dump(json_data, f, ensure_ascii=False, indent=4)
+            logger.success(f"💾 Data successfully saved to JSON: {filepath}")
+        except Exception as e:
+            logger.error(f"❌ Error during JSON export: {e}")
+
+================================================================================
+📄 ФАЙЛ: src\models.py
+================================================================================
+
+# src/models.py
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, List
+import re
+
+
+class OLXItem(BaseModel):
+    """Модель для оголошення з OLX"""
+
+    # Основні поля
+    title: str = Field(..., description="Назва товару", min_length=1)
+    price: str = Field(..., description="Ціна як текст (наприклад '9 000 грн.')")
+    location: str = Field(..., description="Місто/область")
+    date: str = Field(..., description="Дата публікації")
+    url: str = Field(..., description="Посилання на оголошення")
+
+    # Опціональні поля
+    image_url: Optional[str] = Field(None, description="Посилання на зображення")
+
+    # Валідатори
+    @field_validator('price', mode='before')
+    @classmethod
+    def clean_price(cls, v: str) -> str:
+        """Очищає ціну від зайвих пробілів"""
+        if isinstance(v, str):
+            return v.strip()
+        return str(v)
+
+    @field_validator('title', 'location', 'date', mode='before')
+    @classmethod
+    def clean_text(cls, v: str) -> str:
+        """Очищає текст від зайвих пробілів"""
+        if isinstance(v, str):
+            return ' '.join(v.split())  # видаляє зайві пробіли
+        return str(v)
+
+    @field_validator('url', mode='before')
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        """Перевіряє, що URL починається з https://"""
+        if isinstance(v, str):
+            if v.startswith('//'):
+                return f"https:{v}"
+            if not v.startswith('http'):
+                return f"https://www.olx.ua{v}"
+        return v
+
+    # Додаткові властивості для зручності
+    @property
+    def price_value(self) -> int:
+        """
+        Повертає числове значення ціни
+        Наприклад: '9 000 грн.' -> 9000
+        """
+        if not self.price:
+            return 0
+        # Видаляє всі нецифрові символи
+        digits = re.sub(r'[^\d]', '', self.price)
+        return int(digits) if digits else 0
+
+    @property
+    def city(self) -> str:
+        """Повертає тільки назву міста (без області)"""
+        # Якщо локація має формат "Київ, Голосіївський"
+        if ',' in self.location:
+            return self.location.split(',')[0].strip()
+        return self.location
+
+    @property
+    def is_today(self) -> bool:
+        """Перевіряє, чи оголошення опубліковане сьогодні"""
+        return 'Сьогодні' in self.date
+
+    @property
+    def is_yesterday(self) -> bool:
+        """Перевіряє, чи оголошення опубліковане вчора"""
+        return 'Вчора' in self.date
+
+    def to_dict(self) -> dict:
+        """Конвертує в словник для збереження"""
+        return {
+            'title': self.title,
+            'price': self.price,
+            'price_value': self.price_value,
+            'location': self.location,
+            'city': self.city,
+            'date': self.date,
+            'is_today': self.is_today,
+            'url': self.url,
+            'image_url': self.image_url
+        }
+
+    def __str__(self) -> str:
+        """Коротке представлення"""
+        return f"{self.title[:50]}... | {self.price} | {self.location}"
+
+
+class ScraperResult(BaseModel):
+    """Модель для результатів скрапінгу"""
+    total_found: int = Field(..., description="Загальна кількість знайдених оголошень")
+    items: List[OLXItem] = Field(default_factory=list, description="Список оголошень")
+
+    @property
+    def total_price(self) -> int:
+        """Сумарна вартість всіх оголошень"""
+        return sum(item.price_value for item in items)
+
+    @property
+    def average_price(self) -> float:
+        """Середня ціна"""
+        if not self.items:
+            return 0
+        return self.total_price / len(self.items)
+
+    def to_dict(self) -> dict:
+        """Конвертує в словник для збереження"""
+        return {
+            'total_found': self.total_found,
+            'items': [item.to_dict() for item in self.items],
+            'statistics': {
+                'total_price': self.total_price,
+                'average_price': round(self.average_price, 2),
+                'items_count': len(self.items)
+            }
+        }
+
+================================================================================
+📄 ФАЙЛ: src\parser.py
+================================================================================
+
+# src/parser.py
+from playwright.async_api import Page
+from src.models import OLXItem
+from loguru import logger
+from urllib.parse import urljoin
+import asyncio
+
+
+class OLXParser:
+    """Parser for olx.ua listings"""
+
+    def __init__(self):
+        # Розширені селектори з кількома варіантами
+        self.selectors = {
+            "card": [
+                "div.css-1g5933j",  # основний селектор для 1-ї сторінки
+                "div.css-1ap2g7h",  # альтернативний для наступних сторінок
+                "div[data-cy='l-card']",  # data-cy атрибут
+                "div.css-1venxjw",  # ще один варіант
+                "div.css-1ww9k7w"  # запасний варіант
+            ],
+            "title": [
+                "h4.css-hzlye5",
+                "h4.css-1juy1o3",  # альтернативний клас
+                "a.css-z3gu2d h4"  # вкладений селектор
+            ],
+            "price": [
+                "p[data-testid='ad-price']",
+                "p.css-10b0gli",
+                "h3.css-1ap2g7h"
+            ],
+            "location_date": [
+                "p[data-testid='location-date']",
+                "p.css-1mwad3y",
+                "span.css-1c0ed4l"
+            ],
+            "link": [
+                "a.css-1tqlkj0",
+                "a[data-testid='ad-card-link']",
+                "a.css-z3gu2d"
+            ],
+            "image": [
+                "img.css-8wsg1m",
+                "img[data-testid='ad-image']",
+                "img.css-8wsg5m"
+            ],
+            "next_button": [
+                "a[data-testid='pagination-forward']",
+                "a[rel='next']",
+                "li.next a",
+                "a.css-1sxq6i0"
+            ]
+        }
+
+        # Статистика для дебагу
+        self.stats = {
+            'pages_processed': 0,
+            'cards_found': 0,
+            'cards_parsed': 0,
+            'errors': 0
+        }
+
+    async def _find_working_selector(self, page: Page, selector_list: list, timeout: int = 5000) -> str | None:
+        """
+        Знаходить перший робочий селектор зі списку
+
+        Args:
+            page: Сторінка Playwright
+            selector_list: Список селекторів для перевірки
+            timeout: Час очікування в мс
+
+        Returns:
+            str: Робочий селектор або None
+        """
+        for selector in selector_list:
+            try:
+                # Швидка перевірка з малим таймаутом
+                element = await page.wait_for_selector(selector, timeout=timeout, state='attached')
+                if element:
+                    logger.debug(f"✅ Знайдено робочий селектор: {selector}")
+                    return selector
+            except:
+                continue
+        return None
+
+    async def parse_listings(self, page: Page) -> list[OLXItem]:
+        """
+        Parse OLX listings from the page with improved error handling
+        Extracts: title, price, location, date, image, and URL
+        """
+        items = []
+        self.stats['pages_processed'] += 1
+
+        # Визначаємо номер сторінки для логування
+        current_url = page.url
+        page_num = current_url.split('page=')[-1] if 'page=' in current_url else '1'
+
+        logger.info(f"📄 Обробка сторінки {page_num}...")
+
+        try:
+            # Чекаємо з більшим таймаутом (30 секунд)
+            card_selector = await self._find_working_selector(page, self.selectors["card"], timeout=30000)
+
+            if not card_selector:
+                logger.error(f"❌ Не знайдено жодного селектора для карток на сторінці {page_num}")
+                return items
+
+            # Отримуємо всі картки
+            cards = await page.query_selector_all(card_selector)
+            self.stats['cards_found'] += len(cards)
+
+            logger.info(f"📦 Знайдено {len(cards)} оголошень на сторінці {page_num}")
+
+            for card_index, card in enumerate(cards, 1):
+                try:
+                    # Title
+                    title_selector = await self._find_working_selector(card, self.selectors["title"], timeout=1000)
+                    title_el = await card.query_selector(title_selector) if title_selector else None
+                    title = await title_el.inner_text() if title_el else "Без назви"
+
+                    # Price
+                    price_selector = await self._find_working_selector(card, self.selectors["price"], timeout=1000)
+                    price_el = await card.query_selector(price_selector) if price_selector else None
+                    price_text = await price_el.inner_text() if price_el else "0 грн"
+
+                    # Location and date
+                    loc_selector = await self._find_working_selector(card, self.selectors["location_date"],
+                                                                     timeout=1000)
+                    loc_el = await card.query_selector(loc_selector) if loc_selector else None
+                    loc_text = await loc_el.inner_text() if loc_el else ""
+
+                    location = ""
+                    date = ""
+                    if " - " in loc_text:
+                        parts = loc_text.split(" - ")
+                        location = parts[0].strip()
+                        date = parts[1].strip() if len(parts) > 1 else ""
+
+                    # URL
+                    link_selector = await self._find_working_selector(card, self.selectors["link"], timeout=1000)
+                    link_el = await card.query_selector(link_selector) if link_selector else None
+                    link = await link_el.get_attribute("href") if link_el else ""
+
+                    # Формуємо повне посилання
+                    if link:
+                        if link.startswith('//'):
+                            full_url = f"https:{link}"
+                        elif link.startswith('/'):
+                            full_url = urljoin("https://www.olx.ua", link)
+                        else:
+                            full_url = link
+                    else:
+                        full_url = ""
+
+                    # Image
+                    img_selector = await self._find_working_selector(card, self.selectors["image"], timeout=1000)
+                    img_el = await card.query_selector(img_selector) if img_selector else None
+                    img_url = await img_el.get_attribute("src") if img_el else ""
+                    if img_url and img_url.startswith("//"):
+                        img_url = "https:" + img_url
+
+                    # Create OLX item
+                    item = OLXItem(
+                        title=title.strip(),
+                        price=price_text.strip(),
+                        location=location,
+                        date=date,
+                        url=full_url,
+                        image_url=img_url if img_url else None
+                    )
+                    items.append(item)
+                    self.stats['cards_parsed'] += 1
+
+                    # Логуємо кожну 10-ту картку для прогресу
+                    if card_index % 10 == 0:
+                        logger.debug(f"   Прогрес: {card_index}/{len(cards)}")
+
+                except Exception as e:
+                    self.stats['errors'] += 1
+                    logger.warning(f"⚠️ Помилка парсингу картки #{card_index}: {e}")
+                    continue
+
+            logger.success(f"✅ Успішно спарсено {len(items)} оголошень зі сторінки {page_num}")
+
+        except Exception as e:
+            self.stats['errors'] += 1
+            logger.error(f"❌ Помилка парсингу сторінки {page_num}: {e}")
+
+            # Debug: зберігаємо HTML для аналізу
+            if page_num == '1':
+                html = await page.content()
+                with open("debug_page_1.html", "w", encoding="utf-8") as f:
+                    f.write(html)
+                logger.info("💾 HTML першої сторінки збережено для аналізу")
+
+        return items
+
+    async def get_next_page(self, page: Page) -> str | None:
+        """
+        Get next page URL for OLX with improved selector handling
+
+        Returns:
+            str: URL наступної сторінки або None
+        """
+        current_url = page.url
+        page_num = current_url.split('page=')[-1] if 'page=' in current_url else '1'
+
+        logger.info(f"🔍 Шукаю кнопку 'Далі' на сторінці {page_num}...")
+
+        # Спробуємо всі селектори для кнопки
+        for selector in self.selectors["next_button"]:
+            try:
+                next_button = await page.query_selector(selector)
+                if next_button:
+                    href = await next_button.get_attribute("href")
+                    if href:
+                        # Якщо href - це простий номер сторінки
+                        if href.isdigit():
+                            base_url = current_url.split('?')[0]
+                            if '?' in current_url:
+                                params = current_url.split('?')[1]
+                                next_url = f"{base_url}?page={href}"
+                            else:
+                                next_url = f"{base_url}?page={href}"
+                        else:
+                            next_url = urljoin(page.url, href)
+
+                        logger.success(f"✅ Знайдено наступну сторінку: {next_url}")
+                        return next_url
+            except:
+                continue
+
+        # Якщо не знайшли кнопку, пробуємо сформувати URL вручну
+        if 'page=' in current_url:
+            # Збільшуємо номер сторінки на 1
+            import re
+            match = re.search(r'page=(\d+)', current_url)
+            if match:
+                current_page = int(match.group(1))
+                next_page = current_page + 1
+                next_url = re.sub(r'page=\d+', f'page={next_page}', current_url)
+                logger.info(f"🔄 Спробую сформувати URL вручну: {next_url}")
+                return next_url
+        elif 'q-' in current_url:
+            # Перша сторінка, додаємо page=2
+            if '?' in current_url:
+                next_url = f"{current_url}&page=2"
+            else:
+                next_url = f"{current_url}?page=2"
+            logger.info(f"🔄 Спробую сформувати URL для другої сторінки: {next_url}")
+            return next_url
+
+        logger.info(f"🏁 Це остання сторінка ({page_num})")
+        return None
+
+    def print_stats(self):
+        """Виводить статистику роботи парсера"""
+        logger.info("📊 Статистика парсера:")
+        logger.info(f"   • Сторінок оброблено: {self.stats['pages_processed']}")
+        logger.info(f"   • Карток знайдено: {self.stats['cards_found']}")
+        logger.info(f"   • Карток спарсено: {self.stats['cards_parsed']}")
+        logger.info(f"   • Помилок: {self.stats['errors']}")
+        if self.stats['cards_found'] > 0:
+            success_rate = (self.stats['cards_parsed'] / self.stats['cards_found']) * 100
+            logger.info(f"   • Успішність: {success_rate:.1f}%")
+
+================================================================================
+📄 ФАЙЛ: src\proxy_fetcher.py
+================================================================================
+
+# src/proxy_fetcher.py
+"""
+Автоматичне отримання проксі з Webshare API
+Підтримує 100+ проксі через пагінацію
+"""
+
+import requests
+import os
+from pathlib import Path
+from loguru import logger
+import yaml
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+class WebshareProxyFetcher:
+    """Клас для автоматичного отримання проксі з Webshare"""
+
+    def __init__(self, api_token: str = None):
+        """
+        Args:
+            api_token: API ключ з Webshare (якщо None, бере з .env)
+        """
+        self.api_token = api_token or os.getenv("WEBSHARE_API_TOKEN")
+        if not self.api_token:
+            raise ValueError("❌ API token не знайдено! Додайте WEBSHARE_API_TOKEN в .env файл")
+
+        self.base_url = "https://proxy.webshare.io/api/v2"
+        self.headers = {
+            "Authorization": f"Token {self.api_token}",
+            "Content-Type": "application/json"
+        }
+        self.proxies = []
+        self.username = os.getenv("WEBSHARE_USERNAME")
+        self.password = os.getenv("WEBSHARE_PASSWORD")
+
+    def fetch_all_proxies(self) -> list:
+        """
+        Отримує ВСІ проксі через API з автоматичною пагінацією
+        Підтримує 100, 500, 1000+ проксі
+
+        Returns:
+            list: Список всіх проксі
+        """
+        all_proxies = []
+        page = 1
+        page_size = 100  # Максимум 100 на сторінку
+
+        logger.info("🔄 Завантаження всіх проксі з Webshare...")
+
+        while True:
+            try:
+                # Додаємо параметр mode
+                url = f"{self.base_url}/proxy/list/?page={page}&page_size={page_size}&mode=direct"
+
+                response = requests.get(
+                    url,
+                    headers=self.headers,
+                    timeout=10
+                )
+
+                if response.status_code == 200:
+                    data = response.json()
+                    results = data.get("results", [])
+
+                    if not results:
+                        break
+
+                    for proxy in results:
+                        proxy_config = {
+                            "server": f"http://{proxy['proxy_address']}:{proxy['port']}",
+                            "username": proxy['username'],
+                            "password": proxy['password']
+                        }
+                        all_proxies.append(proxy_config)
+
+                    logger.info(f"📦 Сторінка {page}: +{len(results)} проксі (всього: {len(all_proxies)})")
+
+                    # Перевіряємо чи є наступна сторінка
+                    if data.get("next"):
+                        page += 1
+                    else:
+                        break
+
+                elif response.status_code == 429:
+                    logger.warning("⏳ Rate limit, очікування 10 секунд...")
+                    import time
+                    time.sleep(10)
+                    continue
+                else:
+                    logger.error(f"❌ Помилка API: {response.status_code} - {response.text}")
+                    break
+
+            except Exception as e:
+                logger.error(f"❌ Помилка: {e}")
+                break
+
+        self.proxies = all_proxies
+        logger.success(f"✅ Завантажено ВСІ проксі: {len(all_proxies)} шт.")
+
+        return all_proxies
+
+    def get_proxy_list(self, mode: str = "direct") -> list:
+        """
+        Простий метод отримання проксі з першої сторінки
+
+        Args:
+            mode: "direct" або "backbone"
+        """
+        try:
+            url = f"{self.base_url}/proxy/list/?mode={mode}"
+            response = requests.get(url, headers=self.headers, timeout=10)
+
+            if response.status_code == 200:
+                data = response.json()
+                proxies = []
+
+                for proxy in data.get("results", []):
+                    proxy_config = {
+                        "server": f"http://{proxy['proxy_address']}:{proxy['port']}",
+                        "username": proxy['username'],
+                        "password": proxy['password']
+                    }
+                    proxies.append(proxy_config)
+
+                logger.success(f"✅ Отримано {len(proxies)} проксі")
+                return proxies
+            else:
+                logger.error(f"❌ Помилка: {response.status_code} - {response.text}")
+                return []
+
+        except Exception as e:
+            logger.error(f"❌ Помилка: {e}")
+            return []
+
+    def get_rotating_endpoint(self) -> dict:
+        """
+        Повертає конфіг для ротаційного ендпоінту
+
+        Returns:
+            dict: Конфіг для ротаційного проксі
+        """
+        return {
+            "server": "http://p.webshare.io:80",
+            "username": self.username,
+            "password": self.password
+        }
+
+    def save_to_yaml(self, proxies: list, config_path: str = "config.yaml"):
+        """
+        Зберігає проксі в YAML файл
+
+        Args:
+            proxies: Список проксі
+            config_path: Шлях до config.yaml
+        """
+        try:
+            # Перевіряємо чи існує файл
+            config_file = Path(config_path)
+
+            if config_file.exists():
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = yaml.safe_load(f) or {}
+            else:
+                config = {}
+
+            # Оновлюємо проксі
+            config['proxies'] = proxies
+
+            # Зберігаємо назад
+            with open(config_path, 'w', encoding='utf-8') as f:
+                yaml.dump(config, f, allow_unicode=True, default_flow_style=False, indent=2)
+
+            logger.success(f"✅ {len(proxies)} проксі збережено в {config_path}")
+
+        except Exception as e:
+            logger.error(f"❌ Помилка збереження: {e}")
+
+
+# Зручна функція для використання
+def update_proxies_from_webshare(use_rotating: bool = False):
+    """
+    Оновлює проксі з Webshare
+
+    Args:
+        use_rotating: Якщо True - використовує ротаційний ендпоінт,
+                      якщо False - завантажує всі проксі
+    """
+    fetcher = WebshareProxyFetcher()
+
+    if use_rotating:
+        # Простий ротаційний ендпоінт (один запис)
+        proxies = [fetcher.get_rotating_endpoint()]
+        logger.info("🔄 Використовую ротаційний ендпоінт")
+
+        # Зберігаємо в YAML
+        fetcher.save_to_yaml(proxies)
+        return proxies
+    else:
+        # Всі проксі з пагінацією (для 100+ шт)
+        proxies = fetcher.fetch_all_proxies()
+
+        if proxies:
+            fetcher.save_to_yaml(proxies)
+            return proxies
+        else:
+            # Якщо не вдалося, пробуємо простий метод
+            logger.warning("⚠️ Спробую простий метод get_proxy_list...")
+            proxies = fetcher.get_proxy_list()
+            if proxies:
+                fetcher.save_to_yaml(proxies)
+                return proxies
+
+            logger.warning("⚠️ Не вдалося отримати проксі, використовую старі")
+            return None
+
+================================================================================
+📄 ФАЙЛ: src\proxy_monitor.py
+================================================================================
+
+# src/proxy_monitor.py
+"""
+Моніторинг стану проксі та захист від витоку IP
+"""
+
+from loguru import logger
+from src.settings import VALID_PROXY_LIST
+import time
+from collections import deque
+from datetime import datetime
+
+
+class ProxyMonitor:
+    """Моніторинг та статистика використання проксі"""
+
+    def __init__(self):
+        self.usage_stats = {}
+        for proxy in VALID_PROXY_LIST:
+            server = proxy['server']
+            self.usage_stats[server] = {
+                'used': 0,
+                'failed': 0,
+                'last_used': None,
+                'total_time': 0,
+                'fastest': float('inf'),
+                'slowest': 0
+            }
+
+        self.recent_failures = deque(maxlen=100)
+        self.start_time = time.time()
+        self.total_requests = 0
+        self.successful_requests = 0
+
+        logger.info(f"📊 ProxyMonitor ініціалізовано для {len(VALID_PROXY_LIST)} проксі")
+
+    def log_proxy_usage(self, proxy_server: str, success: bool, response_time: float = None):
+        """Логує використання проксі"""
+        if proxy_server in self.usage_stats:
+            self.usage_stats[proxy_server]['used'] += 1
+            self.usage_stats[proxy_server]['last_used'] = datetime.now().strftime('%H:%M:%S')
+            self.total_requests += 1
+
+            if response_time:
+                self.usage_stats[proxy_server]['total_time'] += response_time
+                if response_time < self.usage_stats[proxy_server]['fastest']:
+                    self.usage_stats[proxy_server]['fastest'] = response_time
+                if response_time > self.usage_stats[proxy_server]['slowest']:
+                    self.usage_stats[proxy_server]['slowest'] = response_time
+
+            if not success:
+                self.usage_stats[proxy_server]['failed'] += 1
+                self.recent_failures.append({
+                    'proxy': proxy_server,
+                    'time': datetime.now().strftime('%H:%M:%S'),
+                    'error': 'Connection failed'
+                })
+            else:
+                self.successful_requests += 1
+
+    def check_proxy_health(self) -> bool:
+        """Перевіряє чи є хоч одне робоче проксі"""
+        if not VALID_PROXY_LIST:
+            logger.critical("=" * 60)
+            logger.critical("🔴 КРИТИЧНО: ВСІ ПРОКСІ МЕРТВІ!")
+            logger.critical("=" * 60)
+            logger.critical("📊 Статистика помилок:")
+            for failure in list(self.recent_failures)[-5:]:  # Останні 5 помилок
+                logger.critical(f"   • {failure['time']} - {failure['proxy']}")
+            logger.critical("=" * 60)
+            logger.critical("🛡️ ЗАХИСТ: Програма буде зупинена")
+            logger.critical("💡 Рішення: Оновіть список проксі в config.yaml")
+            logger.critical("=" * 60)
+            return False
+        return True
+
+    def print_stats(self):
+        """Виводить статистику використання проксі"""
+        logger.info("=" * 70)
+        logger.info("📊 СТАТИСТИКА ВИКОРИСТАННЯ ПРОКСІ")
+        logger.info("=" * 70)
+
+        # Загальна статистика
+        runtime = int(time.time() - self.start_time)
+        hours = runtime // 3600
+        minutes = (runtime % 3600) // 60
+        seconds = runtime % 60
+
+        logger.info(f"⏱️  Час роботи: {hours}г {minutes}хв {seconds}с")
+        logger.info(f"📈 Всього запитів: {self.total_requests}")
+        logger.info(f"✅ Успішних: {self.successful_requests}")
+        logger.info(f"❌ Помилок: {self.total_requests - self.successful_requests}")
+
+        if self.total_requests > 0:
+            success_rate = (self.successful_requests / self.total_requests) * 100
+            logger.info(f"📊 Успішність: {success_rate:.1f}%")
+
+        logger.info("-" * 70)
+        logger.info("📋 Деталі по кожному проксі:")
+        logger.info("-" * 70)
+
+        for proxy, stats in self.usage_stats.items():
+            if stats['used'] > 0:
+                status = "✅" if stats['failed'] == 0 else "⚠️"
+                success_rate = ((stats['used'] - stats['failed']) / stats['used']) * 100
+
+                avg_time = stats['total_time'] / stats['used'] if stats['used'] > 0 else 0
+
+                logger.info(f"   {status} {proxy}")
+                logger.info(f"      Використано: {stats['used']} разів")
+                logger.info(f"      Помилок: {stats['failed']}")
+                logger.info(f"      Успішність: {success_rate:.1f}%")
+                if avg_time > 0:
+                    logger.info(
+                        f"      Сер. час: {avg_time:.2f}с (мін: {stats['fastest']:.2f}с, макс: {stats['slowest']:.2f}с)")
+                logger.info(f"      Останнє використання: {stats['last_used']}")
+                logger.info("-" * 70)
+
+        # Останні помилки
+        if self.recent_failures:
+            logger.warning("⚠️ Останні помилки:")
+            for failure in list(self.recent_failures)[-5:]:
+                logger.warning(f"   • {failure['time']} - {failure['proxy']}")
+
+        logger.info("=" * 70)
+
+    def get_working_proxies_count(self) -> int:
+        """Повертає кількість робочих проксі"""
+        return len(VALID_PROXY_LIST)
+
+    def get_fastest_proxy(self) -> str:
+        """Повертає найшвидше проксі"""
+        fastest = None
+        fastest_time = float('inf')
+
+        for proxy, stats in self.usage_stats.items():
+            if stats['used'] > 0 and stats['fastest'] < fastest_time:
+                fastest_time = stats['fastest']
+                fastest = proxy
+
+        return fastest
+
+================================================================================
+📄 ФАЙЛ: src\proxy_utils.py
+================================================================================
+
+"""
+Утиліти для роботи з проксі
+Тестування, валідація, ротація та моніторинг
+"""
+
+import asyncio
+import json
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Optional, Tuple
+from dataclasses import dataclass, asdict
+
+from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+from loguru import logger
+
+# Для синхронних тестів
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+
+@dataclass
+class ProxyTestResult:
+    """Результат тестування проксі"""
+    server: str
+    is_working: bool
+    response_time: float
+    ip: str = None
+    country: str = None
+    error: str = None
+    timestamp: str = None
+
+    def __post_init__(self):
+        if self.timestamp is None:
+            self.timestamp = datetime.now().isoformat()
+
+
+class ProxyTester:
+    """
+    Клас для тестування працездатності проксі
+    Підтримує як Playwright так і requests
+    """
+
+    def __init__(self, timeout: int = 10):
+        """
+        Args:
+            timeout: Таймаут в секундах для кожного тесту
+        """
+        self.timeout = timeout
+        self.test_urls = [
+            "http://httpbin.org/ip",
+            "http://httpbin.org/get",
+            "http://api.ipify.org?format=json"
+        ]
+
+    async def test_with_playwright(self, proxy: dict) -> ProxyTestResult:
+        """
+        Тестує проксі через Playwright (найточніше, бо емулює браузер)
+
+        Args:
+            proxy: Словник з конфігом проксі {'server': 'http://ip:port', ...}
+
+        Returns:
+            ProxyTestResult з результатами тесту
+        """
+        server = proxy.get('server', 'unknown')
+        start_time = time.time()
+
+        try:
+            logger.debug(f"🧪 Тестуємо проксі (Playwright): {server}")
+
+            async with async_playwright() as p:
+                # Запускаємо браузер з проксі
+                browser = await p.chromium.launch(
+                    headless=True,  # Не показуємо вікно
+                    proxy=proxy
+                )
+
+                # Створюємо контекст з таймаутом
+                context = await browser.new_context()
+                page = await context.new_page()
+
+                # Тест 1: Перевірка з'єднання та отримання IP
+                try:
+                    await page.goto("http://httpbin.org/ip",
+                                    timeout=self.timeout * 1000)
+                    content = await page.text_content("body")
+
+                    # Парсимо JSON відповідь
+                    import json
+                    ip_data = json.loads(content)
+                    current_ip = ip_data.get('origin', 'unknown')
+
+                except PlaywrightTimeoutError:
+                    await browser.close()
+                    return ProxyTestResult(
+                        server=server,
+                        is_working=False,
+                        response_time=time.time() - start_time,
+                        error="Timeout - проксі не відповідає"
+                    )
+
+                # Тест 2: Перевірка швидкості
+                speed_start = time.time()
+                await page.goto("http://httpbin.org/delay/1",
+                                timeout=self.timeout * 1000)
+                speed_end = time.time()
+                response_time = speed_end - speed_start
+
+                # Закриваємо браузер
+                await browser.close()
+
+                # Тест 3: Спроба визначити країну (опціонально)
+                country = await self._get_country_from_ip(current_ip)
+
+                return ProxyTestResult(
+                    server=server,
+                    is_working=True,
+                    response_time=response_time,
+                    ip=current_ip,
+                    country=country
+                )
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.debug(f"❌ Помилка проксі {server}: {error_msg[:100]}")
+
+            return ProxyTestResult(
+                server=server,
+                is_working=False,
+                response_time=time.time() - start_time,
+                error=error_msg[:200]
+            )
+
+    def test_with_requests(self, proxy: dict) -> ProxyTestResult:
+        """
+        Швидке тестування проксі через requests (без браузера)
+        Використовуй для попередньої фільтрації
+
+        Args:
+            proxy: Словник з конфігом проксі
+        """
+        server = proxy.get('server', 'unknown')
+        start_time = time.time()
+
+        try:
+            # Конвертуємо формат Playwright -> requests
+            proxies = {
+                "http": server,
+                "https": server
+            }
+
+            # Додаємо автентифікацію якщо є
+            auth = None
+            if "username" in proxy and "password" in proxy:
+                from requests.auth import HTTPProxyAuth
+                auth = HTTPProxyAuth(proxy["username"], proxy["password"])
+
+            response = requests.get(
+                "http://httpbin.org/ip",
+                proxies=proxies,
+                auth=auth,
+                timeout=self.timeout
+            )
+
+            response_time = time.time() - start_time
+            ip_data = response.json()
+            current_ip = ip_data.get('origin', 'unknown')
+
+            return ProxyTestResult(
+                server=server,
+                is_working=True,
+                response_time=response_time,
+                ip=current_ip
+            )
+
+        except Exception as e:
+            return ProxyTestResult(
+                server=server,
+                is_working=False,
+                response_time=time.time() - start_time,
+                error=str(e)[:200]
+            )
+
+    async def _get_country_from_ip(self, ip: str) -> str:
+        """Визначає країну за IP (опціонально)"""
+        try:
+            response = requests.get(f"http://ip-api.com/json/{ip}", timeout=2)
+            data = response.json()
+            return data.get('country', 'unknown')
+        except:
+            return 'unknown'
+
+    async def test_batch(self, proxy_list: List[dict],
+                         max_workers: int = 5,
+                         use_playwright: bool = False) -> List[ProxyTestResult]:
+        """
+        Тестує список проксі паралельно
+
+        Args:
+            proxy_list: Список проксі для тестування
+            max_workers: Кількість одночасних тестів
+            use_playwright: Використовувати Playwright (повільніше, але точніше)
+
+        Returns:
+            List[ProxyTestResult]: Результати тестування
+        """
+        logger.info(f"🧪 Початок тестування {len(proxy_list)} проксі...")
+
+        results = []
+
+        if use_playwright:
+            # Асинхронне тестування з Playwright
+            semaphore = asyncio.Semaphore(max_workers)
+
+            async def test_with_limit(proxy):
+                async with semaphore:
+                    return await self.test_with_playwright(proxy)
+
+            tasks = [test_with_limit(proxy) for proxy in proxy_list]
+            results = await asyncio.gather(*tasks)
+        else:
+            # Синхронне тестування з requests (швидше)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                results = list(executor.map(
+                    lambda p: self.test_with_requests(p),
+                    proxy_list
+                ))
+
+        # Статистика
+        working = [r for r in results if r.is_working]
+        logger.success(f"✅ Знайдено {len(working)}/{len(proxy_list)} робочих проксі")
+
+        return results
+
+
+class ProxyManager:
+    """
+    Менеджер проксі з автоматичною ротацією та чорним списком
+    """
+
+    def __init__(self, proxy_list: List[dict] = None):
+        """
+        Args:
+            proxy_list: Початковий список проксі
+        """
+        self.all_proxies = proxy_list or []
+        self.working_proxies = []
+        self.blacklist = []  # Проксі, які не працюють
+        self.current_index = 0
+        self.stats = {
+            "total_requests": 0,
+            "successful_requests": 0,
+            "failed_requests": 0,
+            "rotations": 0
+        }
+
+    def add_proxy(self, proxy: dict):
+        """Додає проксі до пулу"""
+        self.all_proxies.append(proxy)
+
+    def remove_proxy(self, proxy: dict):
+        """Видаляє проксі з пулу"""
+        if proxy in self.all_proxies:
+            self.all_proxies.remove(proxy)
+        if proxy in self.working_proxies:
+            self.working_proxies.remove(proxy)
+
+    def mark_failed(self, proxy: dict):
+        """Позначає проксі як несправне і додає в чорний список"""
+        self.stats["failed_requests"] += 1
+        self.remove_proxy(proxy)
+        if proxy not in self.blacklist:
+            self.blacklist.append(proxy)
+            logger.warning(f"⛔ Проксі додано до чорного списку: {proxy.get('server')}")
+
+    def mark_success(self, proxy: dict):
+        """Позначає успішний запит"""
+        self.stats["successful_requests"] += 1
+
+    def get_next_proxy(self) -> Optional[dict]:
+        """
+        Повертає наступне проксі з ротацією (round-robin)
+
+        Returns:
+            dict: Конфіг проксі або None якщо немає робочих проксі
+        """
+        if not self.working_proxies:
+            # Якщо немає підтверджено робочих, використовуємо всі
+            available = self.all_proxies
+        else:
+            available = self.working_proxies
+
+        if not available:
+            logger.error("❌ Немає доступних проксі!")
+            return None
+
+        self.current_index = (self.current_index + 1) % len(available)
+        proxy = available[self.current_index]
+        self.stats["rotations"] += 1
+        self.stats["total_requests"] += 1
+
+        logger.debug(f"🔄 Ротація: використовується проксі #{self.current_index + 1}")
+        return proxy.copy()  # Повертаємо копію
+
+    async def verify_and_update(self, tester: ProxyTester):
+        """
+        Перевіряє всі проксі і оновлює список робочих
+
+        Args:
+            tester: Екземпляр ProxyTester
+        """
+        if not self.all_proxies:
+            return
+
+        logger.info("🔍 Запуск перевірки всіх проксі...")
+        results = await tester.test_batch(self.all_proxies, use_playwright=True)
+
+        self.working_proxies = [
+            r.server for r in results if r.is_working
+        ]
+
+        logger.info(f"📊 Статистика проксі: {len(self.working_proxies)} робочих, "
+                    f"{len(self.blacklist)} в чорному списку")
+
+    def get_stats(self) -> dict:
+        """Повертає статистику використання проксі"""
+        return {
+            **self.stats,
+            "total_proxies": len(self.all_proxies),
+            "working_proxies": len(self.working_proxies),
+            "blacklisted": len(self.blacklist),
+            "success_rate": self.stats["successful_requests"] / max(self.stats["total_requests"], 1)
+        }
+
+
+# Функція для швидкого пошуку робочих проксі
+async def find_working_proxies(proxy_list: List[dict],
+                               min_speed: float = 5.0) -> List[dict]:
+    """
+    Швидко знаходить робочі проксі зі списку
+
+    Args:
+        proxy_list: Список проксі для перевірки
+        min_speed: Мінімальна швидкість в секундах
+
+    Returns:
+        List[dict]: Список робочих проксі
+    """
+    tester = ProxyTester(timeout=5)
+
+    # Спочатку швидка перевірка через requests
+    logger.info("🚀 Швидке тестування проксі...")
+    quick_results = tester.test_batch(proxy_list, use_playwright=False)
+
+    # Фільтруємо тільки робочі
+    working_quick = []
+    for result in quick_results:
+        if isinstance(result, ProxyTestResult) and result.is_working:
+            # Знаходимо оригінальний проксі
+            for proxy in proxy_list:
+                if proxy.get('server') == result.server:
+                    working_quick.append(proxy)
+                    break
+
+    logger.info(f"⚡ Знайдено {len(working_quick)} потенційно робочих проксі")
+
+    # Перевіряємо їх через Playwright (точніше)
+    if working_quick:
+        logger.info("🎭 Фінальна перевірка через Playwright...")
+        final_results = await tester.test_batch(working_quick, use_playwright=True)
+
+        working_final = []
+        for result in final_results:
+            if result.is_working and result.response_time < min_speed:
+                for proxy in working_quick:
+                    if proxy.get('server') == result.server:
+                        working_final.append(proxy)
+                        logger.success(f"✅ {result.server} - {result.response_time:.2f}с - {result.ip}")
+                        break
+
+        return working_final
+
+    return []
+
+
+# Функція для збереження робочих проксі в файл
+def save_working_proxies(proxies: List[dict], filename: str = "working_proxies.json"):
+    """
+    Зберігає список робочих проксі в JSON файл
+
+    Args:
+        proxies: Список проксі
+        filename: Ім'я файлу
+    """
+    filepath = Path("data") / filename
+    filepath.parent.mkdir(exist_ok=True)
+
+    # Видаляємо паролі перед збереженням!
+    safe_proxies = []
+    for p in proxies:
+        safe_p = {"server": p["server"]}
+        if "username" in p:
+            safe_p["username"] = p["username"][:3] + "***"
+        safe_p["has_auth"] = "password" in p
+        safe_proxies.append(safe_p)
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(safe_proxies, f, indent=2, ensure_ascii=False)
+
+    logger.success(f"💾 Робочі проксі збережено: {filepath}")
+
+
+# Функція для тестування швидкості всіх проксі
+async def benchmark_proxies(proxy_list: List[dict]) -> List[Tuple[dict, float]]:
+    """
+    Тестує швидкість всіх проксі і повертає відсортований список
+
+    Args:
+        proxy_list: Список проксі
+
+    Returns:
+        List[Tuple[dict, float]]: Відсортовані за швидкістю (швидші перші)
+    """
+    tester = ProxyTester()
+    results = await tester.test_batch(proxy_list, use_playwright=True)
+
+    proxy_speed = []
+    for result in results:
+        if result.is_working:
+            for proxy in proxy_list:
+                if proxy.get('server') == result.server:
+                    proxy_speed.append((proxy, result.response_time))
+                    break
+
+    # Сортуємо за швидкістю
+    proxy_speed.sort(key=lambda x: x[1])
+
+    logger.info("📊 ТОП-5 найшвидших проксі:")
+    for i, (proxy, speed) in enumerate(proxy_speed[:5], 1):
+        logger.info(f"   {i}. {proxy['server']} - {speed:.2f}с")
+
+    return proxy_speed
+
+
+# Експортуємо основні класи та функції
+__all__ = [
+    'ProxyTester',
+    'ProxyManager',
+    'ProxyTestResult',
+    'find_working_proxies',
+    'save_working_proxies',
+    'benchmark_proxies'
+]
+
+================================================================================
+📄 ФАЙЛ: src\scraper.py
+================================================================================
+
+# src/scraper.py
+import asyncio
+import random
+import time
+from src.client import BrowserClient
+from src.parser import OLXParser
+from src.models import OLXItem
+from loguru import logger
+from src.utils import human_delay, smooth_scroll, human_mouse_move
+from src.settings import BASE_DELAY, VALID_PROXY_LIST
+from src.state_manager import StateManager
+from src.exporter import Exporter
+from src.stealth import ManualStealth, get_stealth_for_site
+from src.proxy_monitor import ProxyMonitor
+from src.semaphore_manager import get_semaphore, AsyncTaskGroup
+
+
+class Scraper:
+    def __init__(self, max_items: int = 50, proxy: dict = None,
+                 stealth: ManualStealth = None, site_name: str = "OLX",
+                 max_concurrent: int = 3):
+
+        # ===== ПЕРЕВІРКА ПРОКСІ =====
+        if proxy is None and not VALID_PROXY_LIST:
+            logger.critical("=" * 60)
+            logger.critical("🔴 КРИТИЧНА ПОМИЛКА: СКРАПЕР НЕ МОЖЕ ПРАЦЮВАТИ БЕЗ ПРОКСІ!")
+            logger.critical("=" * 60)
+            logger.critical("🛡️ ЗАХИСТ: Програма буде зупинена")
+            logger.critical("💡 Рішення: Додайте проксі в config.yaml")
+            logger.critical("=" * 60)
+            raise Exception("Scraper вимагає проксі для роботи")
+
+        self.client = BrowserClient(proxy=proxy)
+        self.parser = OLXParser()
+        self.max_items = max_items
+        self.results: list[OLXItem] = []
+        self._lock = asyncio.Lock()
+        self.state_manager = StateManager()
+        self.stealth = stealth or get_stealth_for_site('ukraine')
+
+        # ===== SEMAPHORE ДЛЯ КОНТРОЛЮ НАВАНТАЖЕННЯ =====
+        self.site_name = site_name
+        self.max_concurrent = max_concurrent
+        self.semaphore = get_semaphore(site_name, max_concurrent)
+        self.page_semaphore = asyncio.Semaphore(max_concurrent)  # Для сторінок
+
+        # Монітор проксі
+        self.proxy_monitor = ProxyMonitor()
+
+        # Статистика
+        self.stealth_used = 0
+        self.behavior_imitated = 0
+        self.pages_processed = 0
+        self.start_time = None
+        self.total_pages = 0
+        self.failed_pages = 0
+
+    async def _simulate_human_behavior(self, page):
+        """Імітація поведінки людини"""
+        try:
+            # Випадкова прокрутка
+            scroll_amount = random.randint(200, 500)
+            await page.evaluate(f"window.scrollBy(0, {scroll_amount})")
+            await asyncio.sleep(random.uniform(0.5, 1.5))
+
+            # Випадковий рух миші
+            viewport = page.viewport_size
+            if viewport:
+                x = random.randint(100, viewport['width'] - 100)
+                y = random.randint(100, viewport['height'] - 100)
+                await page.mouse.move(x, y, steps=random.randint(10, 20))
+
+                # Іноді додаткові рухи
+                if random.random() < 0.3:
+                    for _ in range(random.randint(2, 4)):
+                        new_x = x + random.randint(-50, 50)
+                        new_y = y + random.randint(-50, 50)
+                        await page.mouse.move(new_x, new_y, steps=5)
+                        await asyncio.sleep(random.uniform(0.1, 0.2))
+
+            logger.debug(f"[{self.site_name}] 🖱️ Імітація поведінки людини")
+            return True
+        except Exception as e:
+            logger.debug(f"[{self.site_name}] Не вдалося імітувати поведінку: {e}")
+            return False
+
+    async def scrape_page(self, url: str, index: int, proxy_override: dict = None) -> str | None:
+        """
+        Завантажує одну сторінку з контролем навантаження через Semaphore
+        """
+        if len(self.results) >= self.max_items:
+            logger.info(f"[{self.site_name}] 🎯 Досягнуто ліміту в {self.max_items} оголошень")
+            return None
+
+        # ===== КОНТРОЛЬ НАВАНТАЖЕННЯ ЧЕРЕЗ SEMAPHORE =====
+        async with self.page_semaphore:
+            logger.debug(
+                f"[{self.site_name}] 🔑 Отримано доступ до сторінки #{index} (активних: {self.max_concurrent - self.page_semaphore._value}/{self.max_concurrent})")
+
+            return await self._scrape_page_internal(url, index, proxy_override)
+
+    async def _scrape_page_internal(self, url: str, index: int, proxy_override: dict = None) -> str | None:
+        """Внутрішній метод для скрапінгу сторінки"""
+
+        # ===== ПЕРЕВІРКА ПРОКСІ =====
+        if not VALID_PROXY_LIST:
+            logger.critical(f"[{self.site_name}] 🔴 [Сторінка #{index}] НЕМАЄ ПРОКСІ!")
+            return "ERROR_SIGNAL"
+
+        # Вибір проксі
+        safe_index = (index - 1) % len(VALID_PROXY_LIST)
+        current_proxy = proxy_override or VALID_PROXY_LIST[safe_index]
+        logger.info(f"[{self.site_name}] 🔌 [Сторінка #{index}] Проксі: {current_proxy['server']}")
+
+        # Випадковий User-Agent
+        current_ua = self.client.get_random_ua()
+
+        # ===== СТВОРЕННЯ КОНТЕКСТУ =====
+        try:
+            if self.stealth:
+                context = await self.stealth.create_context(self.client.browser)
+                logger.debug(f"[{self.site_name}] 🕵️ Контекст створено через стелс")
+            else:
+                context = await self.client.browser.new_context(
+                    user_agent=current_ua,
+                    proxy=current_proxy,
+                    viewport={"width": random.choice([1366, 1440, 1536, 1920]),
+                              "height": random.choice([768, 900, 864, 1080])}
+                )
+        except Exception as e:
+            logger.error(f"[{self.site_name}] ❌ Помилка створення контексту: {e}")
+            return "ERROR_SIGNAL"
+
+        page = await context.new_page()
+
+        # ===== ЗАСТОСУВАННЯ СТЕЛСУ =====
+        if self.stealth:
+            try:
+                await self.stealth.apply_to_page(page)
+                self.stealth_used += 1
+                logger.debug(f"[{self.site_name}] 🕵️ Додаткові маскування застосовано")
+            except Exception as e:
+                logger.warning(f"[{self.site_name}] ⚠️ Помилка стелсу: {e}")
+
+        try:
+            logger.info(f"[{self.site_name}] 🚀 [Сторінка #{index}] Завантаження: {url}")
+
+            # Імітація поведінки людини
+            if random.random() < 0.7:
+                if await self._simulate_human_behavior(page):
+                    self.behavior_imitated += 1
+
+            # Завантажуємо сторінку
+            await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+
+            # Парсимо оголошення
+            new_items = await self.parser.parse_listings(page)
+            next_page_url = await self.parser.get_next_page(page)
+
+            # Оновлюємо результати
+            async with self._lock:
+                added = self._update_results(new_items)
+                count = len(self.results)
+
+            if added > 0:
+                logger.success(f"[{self.site_name}] ✅ [Сторінка #{index}] +{added} оголошень (Всього: {count})")
+                self.total_pages += 1
+            else:
+                logger.info(f"[{self.site_name}] ℹ️ [Сторінка #{index}] Нових оголошень не знайдено")
+
+            # Зберігаємо прогрес
+            if next_page_url:
+                self.state_manager.save_checkpoint(next_page_url, count)
+
+            # Випадкова затримка
+            delay = random.uniform(BASE_DELAY[0], BASE_DELAY[1])
+            logger.debug(f"[{self.site_name}] 💤 Затримка {delay:.1f}с перед наступною сторінкою")
+            await asyncio.sleep(delay)
+
+            return next_page_url
+
+        except Exception as e:
+            logger.error(f"[{self.site_name}] ❌ Помилка на сторінці #{index}: {e}")
+            self.failed_pages += 1
+            return "ERROR_SIGNAL"
+        finally:
+            await context.close()
+            self.pages_processed += 1
+
+    async def scrape_page_with_retry(self, url: str, index: int, max_retries: int = 3):
+        """Спроба завантажити сторінку з ротацією проксі"""
+
+        if not self.proxy_monitor or not self.proxy_monitor.check_proxy_health():
+            logger.critical(f"[{self.site_name}] 🔴 ВСІ ПРОКСІ МЕРТВІ!")
+            return "ERROR_SIGNAL"
+
+        for attempt in range(max_retries):
+            start_time = time.time()
+            current_proxy = None
+
+            try:
+                if not VALID_PROXY_LIST:
+                    logger.critical(f"[{self.site_name}] 🔴 ПРОКСІ ЗАКІНЧИЛИСЬ!")
+                    if self.proxy_monitor:
+                        self.proxy_monitor.print_stats()
+                    return "ERROR_SIGNAL"
+
+                proxy_index = (index + attempt) % len(VALID_PROXY_LIST)
+                current_proxy = VALID_PROXY_LIST[proxy_index]
+
+                logger.info(f"[{self.site_name}] 🔄 Спроба {attempt + 1}/{max_retries} для сторінки #{index}")
+                logger.info(f"[{self.site_name}] 🔌 Проксі: {current_proxy['server']}")
+
+                result = await asyncio.wait_for(
+                    self.scrape_page(url, index, current_proxy),
+                    timeout=45
+                )
+
+                response_time = time.time() - start_time
+                if self.proxy_monitor and current_proxy:
+                    self.proxy_monitor.log_proxy_usage(
+                        current_proxy['server'],
+                        success=True,
+                        response_time=response_time
+                    )
+
+                if result != "ERROR_SIGNAL":
+                    if attempt > 0:
+                        logger.success(f"[{self.site_name}] ✅ Сторінка #{index} завантажена з {attempt + 1} спроби")
+                    return result
+
+            except asyncio.TimeoutError:
+                logger.warning(f"[{self.site_name}] ⏰ Таймаут на сторінці #{index}")
+                if self.proxy_monitor and current_proxy:
+                    self.proxy_monitor.log_proxy_usage(current_proxy['server'], success=False)
+
+            except Exception as e:
+                if self.proxy_monitor and current_proxy:
+                    self.proxy_monitor.log_proxy_usage(current_proxy['server'], success=False)
+
+                if "ERR_PROXY_CONNECTION_FAILED" in str(e) and current_proxy:
+                    logger.warning(f"[{self.site_name}] 🔴 Проксі не відповідає: {current_proxy['server']}")
+                    if VALID_PROXY_LIST and current_proxy in VALID_PROXY_LIST:
+                        VALID_PROXY_LIST.remove(current_proxy)
+                        logger.warning(
+                            f"[{self.site_name}] 🗑️ Видалено мертве проксі. Залишилось: {len(VALID_PROXY_LIST)}")
+
+                        if not VALID_PROXY_LIST and self.proxy_monitor:
+                            logger.critical(f"[{self.site_name}] 🔴 ВСІ ПРОКСІ ВИДАЛЕНО!")
+                            self.proxy_monitor.print_stats()
+                            return "ERROR_SIGNAL"
+                else:
+                    logger.warning(f"[{self.site_name}] ⚠️ Помилка: {str(e)[:100]}")
+
+            wait_time = 2 ** attempt
+            logger.info(f"[{self.site_name}] 💤 Очікування {wait_time}с")
+            await asyncio.sleep(wait_time)
+
+        logger.error(f"[{self.site_name}] ❌ Всі {max_retries} спроб для сторінки #{index} не вдалися")
+        return "ERROR_SIGNAL"
+
+    async def run(self, start_url: str):
+        """Основний метод запуску"""
+        self.start_time = time.time()
+        await self.client.start()
+
+        checkpoint_data = self.state_manager.load_checkpoint()
+        current_url = start_url
+
+        if isinstance(checkpoint_data, dict):
+            current_url = checkpoint_data.get("last_url", start_url)
+        elif isinstance(checkpoint_data, str):
+            current_url = checkpoint_data
+
+        if current_url != start_url:
+            logger.info(f"[{self.site_name}] ♻️ Відновлення з чекпоїнта: {current_url}")
+
+        page_index = 1
+        start_time = time.time()
+
+        try:
+            while current_url and len(self.results) < self.max_items:
+                result = await self.scrape_page_with_retry(current_url, page_index)
+
+                if result == "ERROR_SIGNAL":
+                    logger.warning(f"[{self.site_name}] ⚠️ Переривання. Чекпоїнт: {current_url}")
+                    break
+
+                current_url = result
+                page_index += 1
+
+            # Статистика
+            elapsed_time = time.time() - start_time
+            logger.info("=" * 60)
+            logger.info(f"📊 СТАТИСТИКА ДЛЯ {self.site_name}")
+            logger.info("=" * 60)
+            logger.info(f"📄 Сторінок успішно: {self.total_pages}")
+            logger.info(f"❌ Сторінок з помилками: {self.failed_pages}")
+            logger.info(f"📦 Оголошень: {len(self.results)}")
+            logger.info(f"⏱️ Час: {elapsed_time:.1f} сек")
+            if elapsed_time > 0:
+                logger.info(f"⚡ Швидкість: {len(self.results) / elapsed_time:.2f} огол./сек")
+            logger.info(f"🕵️ Стелс: {self.stealth_used} разів")
+            logger.info(f"🖱️ Імітацій: {self.behavior_imitated} разів")
+            logger.info("=" * 60)
+
+            if self.proxy_monitor:
+                self.proxy_monitor.print_stats()
+
+            if len(self.results) >= self.max_items or current_url is None:
+                self.state_manager.clear_checkpoint()
+
+            return self.results
+
+        except Exception as e:
+            logger.critical(f"[{self.site_name}] 💥 Критична помилка: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return self.results
+        finally:
+            await self.client.stop()
+
+    def _update_results(self, new_items: list[OLXItem]) -> int:
+        """Оновлює результати, уникаючи дублікатів"""
+        existing_urls = {item.url for item in self.results}
+        added = 0
+
+        for item in new_items:
+            if item.url not in existing_urls and len(self.results) < self.max_items:
+                self.results.append(item)
+                existing_urls.add(item.url)
+                added += 1
+                Exporter.append_to_csv(item, filename=f"{self.site_name.lower()}_results.csv")
+
+        return added
+
+
+# ===== КЛАС ДЛЯ ПАРАЛЕЛЬНОГО ЗАПУСКУ КІЛЬКОХ САЙТІВ =====
+
+class MultiSiteScraper:
+    """
+    Клас для одночасного скрапінгу кількох сайтів з контролем навантаження
+    """
+
+    def __init__(self, max_concurrent_total: int = 3):
+        """
+        Args:
+            max_concurrent_total: Максимальна кількість сайтів одночасно
+        """
+        self.max_concurrent_total = max_concurrent_total
+        self.total_semaphore = asyncio.Semaphore(max_concurrent_total)
+        self.scrapers = []
+        self.results = {}
+
+    def add_site(self, site_name: str, url: str, max_items: int = 50,
+                 site_max_concurrent: int = 2):
+        """
+        Додати сайт для скрапінгу
+
+        Args:
+            site_name: Назва сайту
+            url: URL для скрапінгу
+            max_items: Максимальна кількість оголошень
+            site_max_concurrent: Максимум одночасних сторінок для цього сайту
+        """
+        scraper = Scraper(
+            max_items=max_items,
+            site_name=site_name,
+            max_concurrent=site_max_concurrent
+        )
+        self.scrapers.append({
+            'name': site_name,
+            'url': url,
+            'scraper': scraper
+        })
+
+    async def _run_site(self, site_info: dict) -> tuple:
+        """
+        Запустити скрапінг одного сайту з контролем глобального навантаження
+        """
+        async with self.total_semaphore:
+            logger.info(f"🚀 Старт скрапінгу для {site_info['name']}")
+            try:
+                results = await site_info['scraper'].run(site_info['url'])
+                logger.success(f"✅ {site_info['name']} завершено: {len(results)} оголошень")
+                return site_info['name'], results
+            except Exception as e:
+                logger.error(f"❌ {site_info['name']} помилка: {e}")
+                return site_info['name'], None
+
+    async def run_all(self) -> dict:
+        """
+        Запустити скрапінг всіх доданих сайтів паралельно
+        """
+        logger.info(f"🚀 ЗАПУСК {len(self.scrapers)} САЙТІВ ПАРАЛЕЛЬНО")
+        logger.info(f"📊 Максимум одночасно: {self.max_concurrent_total}")
+
+        tasks = [self._run_site(site) for site in self.scrapers]
+        results_list = await asyncio.gather(*tasks)
+
+        self.results = dict(results_list)
+
+        # Підсумкова статистика
+        logger.info("=" * 60)
+        logger.info("📊 ЗАГАЛЬНА СТАТИСТИКА")
+        logger.info("=" * 60)
+        total = 0
+        for name, results in self.results.items():
+            if results:
+                count = len(results)
+                total += count
+                logger.info(f"   • {name}: {count} оголошень")
+        logger.info(f"   • ВСЬОГО: {total} оголошень")
+        logger.info("=" * 60)
+
+        return self.results
+
+================================================================================
+📄 ФАЙЛ: src\semaphore_manager.py
+================================================================================
+
+# src/semaphore_manager.py
+"""
+Менеджер для контролю паралельних запитів (Semaphore)
+Дозволяє уникнути блокування та перевантаження сайтів
+"""
+
+import asyncio
+from loguru import logger
+from typing import Optional, Dict, Any
+import time
+
+
+class SemaphoreManager:
+    """
+    Клас для керування паралельними запитами
+    Використовується як "світлофор" для обмеження кількості одночасних задач
+    """
+
+    def __init__(self, max_concurrent: int = 3, site_name: str = "default"):
+        """
+        Args:
+            max_concurrent: Максимальна кількість одночасних запитів
+            site_name: Назва сайту для логування
+        """
+        self.semaphore = asyncio.Semaphore(max_concurrent)
+        self.max_concurrent = max_concurrent
+        self.site_name = site_name
+        self.active_tasks = 0
+        self.total_tasks = 0
+        self.waiting_tasks = 0
+        self.start_time = None
+
+    async def acquire(self, task_name: str = "") -> bool:
+        """
+        Отримати дозвіл на виконання (зайти на "зелене світло")
+
+        Args:
+            task_name: Назва задачі для логування
+
+        Returns:
+            bool: True якщо дозвіл отримано
+        """
+        self.waiting_tasks += 1
+        logger.debug(f"[{self.site_name}] ⏳ Задача '{task_name}' чекає... (в черзі: {self.waiting_tasks})")
+
+        # Чекаємо на звільнення місця
+        await self.semaphore.acquire()
+
+        self.waiting_tasks -= 1
+        self.active_tasks += 1
+        self.total_tasks += 1
+
+        logger.debug(
+            f"[{self.site_name}] ✅ Задача '{task_name}' стартує (активних: {self.active_tasks}/{self.max_concurrent})")
+        return True
+
+    def release(self, task_name: str = ""):
+        """
+        Звільнити дозвіл (вийти з "зеленого світла")
+
+        Args:
+            task_name: Назва задачі для логування
+        """
+        self.active_tasks -= 1
+        self.semaphore.release()
+        logger.debug(
+            f"[{self.site_name}] 🔓 Задача '{task_name}' завершилась (активних: {self.active_tasks}/{self.max_concurrent})")
+
+    async def run_with_semaphore(self, coro, task_name: str = ""):
+        """
+        Запустити корутину з контролем Semaphore (автоматично acquire/release)
+
+        Args:
+            coro: Асинхронна функція для виконання
+            task_name: Назва задачі
+
+        Returns:
+            Результат виконання корутини
+        """
+        await self.acquire(task_name)
+        try:
+            if self.start_time is None:
+                self.start_time = time.time()
+
+            result = await coro
+            return result
+        finally:
+            self.release(task_name)
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Повертає статистику роботи Semaphore"""
+        runtime = time.time() - self.start_time if self.start_time else 0
+        return {
+            'site': self.site_name,
+            'max_concurrent': self.max_concurrent,
+            'total_tasks': self.total_tasks,
+            'current_active': self.active_tasks,
+            'current_waiting': self.waiting_tasks,
+            'runtime_seconds': round(runtime, 2)
+        }
+
+    def print_stats(self):
+        """Виводить статистику в логи"""
+        stats = self.get_stats()
+        logger.info(f"📊 Semaphore статистика для {stats['site']}:")
+        logger.info(f"   • Макс. одночасно: {stats['max_concurrent']}")
+        logger.info(f"   • Всього задач: {stats['total_tasks']}")
+        logger.info(f"   • Час роботи: {stats['runtime_seconds']} сек")
+
+
+# Глобальний менеджер для різних сайтів
+_semaphores: Dict[str, SemaphoreManager] = {}
+
+
+def get_semaphore(site_name: str, max_concurrent: int = 3) -> SemaphoreManager:
+    """
+    Отримати або створити Semaphore для конкретного сайту
+
+    Args:
+        site_name: Назва сайту
+        max_concurrent: Максимальна кількість одночасних запитів
+
+    Returns:
+        SemaphoreManager для сайту
+    """
+    if site_name not in _semaphores:
+        _semaphores[site_name] = SemaphoreManager(max_concurrent, site_name)
+        logger.info(f"🚦 Створено Semaphore для {site_name} (макс. {max_concurrent} одночасно)")
+    return _semaphores[site_name]
+
+
+class AsyncTaskGroup:
+    """
+    Група асинхронних задач з контролем навантаження
+    Дозволяє запускати кілька задач з обмеженням паралельності
+    """
+
+    def __init__(self, max_concurrent: int = 3, name: str = "group"):
+        """
+        Args:
+            max_concurrent: Максимальна кількість одночасних задач
+            name: Назва групи для логування
+        """
+        self.semaphore = get_semaphore(name, max_concurrent)
+        self.tasks = []
+        self.name = name
+
+    def add_task(self, coro, task_name: str = ""):
+        """
+        Додати задачу до групи
+
+        Args:
+            coro: Асинхронна функція
+            task_name: Назва задачі
+        """
+        self.tasks.append((coro, task_name))
+
+    async def run_all(self) -> list:
+        """
+        Запустити всі задачі з контролем Semaphore
+
+        Returns:
+            list: Результати виконання
+        """
+        logger.info(f"🚀 Запуск групи '{self.name}' з {len(self.tasks)} задач")
+
+        # Запускаємо всі задачі з контролем
+        results = []
+        for i, (coro, task_name) in enumerate(self.tasks):
+            result = await self.semaphore.run_with_semaphore(
+                coro,
+                task_name or f"task_{i + 1}"
+            )
+            results.append(result)
+
+        self.semaphore.print_stats()
+        return results
+
+    async def run_parallel(self) -> list:
+        """
+        Запустити всі задачі ПАРАЛЕЛЬНО з контролем Semaphore
+
+        Returns:
+            list: Результати виконання
+        """
+        logger.info(f"🚀 Паралельний запуск групи '{self.name}' з {len(self.tasks)} задач")
+
+        # Створюємо задачі з контролем
+        controlled_tasks = [
+            self.semaphore.run_with_semaphore(coro, task_name)
+            for coro, task_name in self.tasks
+        ]
+
+        # Запускаємо паралельно
+        results = await asyncio.gather(*controlled_tasks, return_exceptions=True)
+
+        self.semaphore.print_stats()
+        return results
+
+
+# Простий декоратор для контролю навантаження
+def with_semaphore(site_name: str = "default", max_concurrent: int = 3):
+    """
+    Декоратор для обмеження паралельних викликів функції
+
+    Args:
+        site_name: Назва сайту
+        max_concurrent: Максимальна кількість одночасних викликів
+    """
+    semaphore = get_semaphore(site_name, max_concurrent)
+
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            async with semaphore.semaphore:
+                return await func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+================================================================================
+📄 ФАЙЛ: src\settings.py
+================================================================================
+
+# src/settings.py
+import yaml
+from pathlib import Path
+from loguru import logger
+import sys
+
+# ============================================
+# БАЗОВІ НАЛАШТУВАННЯ
+# ============================================
+
+BASE_DIR = Path(__file__).parent.parent
+DATA_DIR = BASE_DIR / "data"
+LOG_DIR = DATA_DIR / "logs"
+CONFIG_PATH = BASE_DIR / "config.yaml"
+
+# Створюємо необхідні папки
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# ============================================
+# ЗАВАНТАЖЕННЯ КОНФІГУРАЦІЇ
+# ============================================
+
+def load_config():
+    """Завантажує конфігурацію з YAML файлу"""
+    if not CONFIG_PATH.exists():
+        logger.warning(f"⚠️ Файл {CONFIG_PATH} не знайдено!")
+        return {}
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+config = load_config()
+
+
+# ============================================
+# НАЛАШТУВАННЯ ДЛЯ OLX
+# ============================================
+
+# URL для парсингу (за замовчуванням ноутбуки)
+START_URL = "https://www.olx.ua/uk/list/q-ноутбук/"
+
+# Кількість елементів для збору
+MAX_ITEMS = config.get("max_items", 100)
+
+# Затримки між запитами (секунди)
+delays_cfg = config.get("delays", {"min": 4, "max": 8})
+BASE_DELAY = (delays_cfg["min"], delays_cfg["max"])
+
+# Налаштування браузера
+browser_cfg = config.get("browser", {})
+HEADLESS = browser_cfg.get("headless", False)
+TIMEOUT = browser_cfg.get("timeout", 60000)  # 60 секунд
+
+# User Agents для маскування
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+]
+
+
+# ============================================
+# КЛАС ПОМИЛКИ ДЛЯ ПРОКСІ
+# ============================================
+
+class NoProxyAvailableError(Exception):
+    """Виняток, коли немає доступних проксі"""
+    pass
+
+
+# ============================================
+# ВАЛІДАЦІЯ ПРОКСІ
+# ============================================
+
+def validate_proxy(proxy):
+    """Перевіряє чи проксі має правильний формат"""
+    if not isinstance(proxy, dict):
+        return False
+    if "server" not in proxy:
+        return False
+    if not proxy["server"].startswith(("http://", "https://")):
+        return False
+    try:
+        address = proxy["server"].split("://")[1]
+        if ":" not in address:
+            return False
+        port = int(address.split(":")[1])
+        if not (1 <= port <= 65535):
+            return False
+    except:
+        return False
+
+    if "username" in proxy and not isinstance(proxy["username"], str):
+        return False
+    if "password" in proxy and not isinstance(proxy["password"], str):
+        return False
+
+    return True
+
+
+# ============================================
+# АВТОМАТИЧНЕ ЗАВАНТАЖЕННЯ ПРОКСІ
+# ============================================
+
+from src.proxy_fetcher import WebshareProxyFetcher
+
+logger.info("🔄 Завантаження проксі з Webshare API...")
+
+try:
+    fetcher = WebshareProxyFetcher()
+    auto_proxies = fetcher.fetch_all_proxies()
+
+    if auto_proxies:
+        RAW_PROXY_LIST = auto_proxies
+        logger.success(f"✅ Завантажено {len(auto_proxies)} проксі")
+    else:
+        logger.warning("⚠️ API не повернув проксі, використовую резервний список")
+        RAW_PROXY_LIST = config.get("proxies", [])
+except Exception as e:
+    logger.warning(f"⚠️ Помилка завантаження проксі: {e}")
+    RAW_PROXY_LIST = config.get("proxies", [])
+
+
+# ============================================
+# ФІЛЬТРАЦІЯ ПРОКСІ
+# ============================================
+
+VALID_PROXY_LIST = []
+INVALID_PROXY_LIST = []
+
+for proxy in RAW_PROXY_LIST:
+    if validate_proxy(proxy):
+        VALID_PROXY_LIST.append(proxy)
+    else:
+        INVALID_PROXY_LIST.append(proxy)
+
+
+# ============================================
+# ПЕРЕВІРКА НАЯВНОСТІ ПРОКСІ
+# ============================================
+
+def validate_proxy_list():
+    """Жорстка перевірка наявності проксі"""
+    if not VALID_PROXY_LIST:
+        logger.critical("=" * 60)
+        logger.critical("🔴 КРИТИЧНА ПОМИЛКА: НЕМАЄ ДОСТУПНИХ ПРОКСІ!")
+        logger.critical("=" * 60)
+        logger.critical("🛡️ ЗАХИСТ: Програма зупинена - робота без проксі ЗАБОРОНЕНА!")
+        logger.critical("=" * 60)
+        raise NoProxyAvailableError("Немає доступних проксі для роботи")
+    return VALID_PROXY_LIST
+
+
+# Виконуємо перевірку
+try:
+    VALID_PROXY_LIST = validate_proxy_list()
+    logger.info(f"📊 Доступно {len(VALID_PROXY_LIST)} робочих проксі")
+except NoProxyAvailableError:
+    sys.exit(1)
+
+# Налаштування ротації
+USE_PROXY_ROTATION = len(VALID_PROXY_LIST) > 1
+if USE_PROXY_ROTATION:
+    logger.info(f"🔄 Увімкнено ротацію {len(VALID_PROXY_LIST)} проксі")
+
+
+# ============================================
+# ЗБЕРЕЖЕННЯ СПИСКУ ПРОКСІ (для моніторингу)
+# ============================================
+
+if VALID_PROXY_LIST:
+    PROXY_CACHE_FILE = DATA_DIR / "valid_proxies.json"
+    import json
+    with open(PROXY_CACHE_FILE, "w", encoding="utf-8") as f:
+        safe_proxies = [{"server": p["server"]} for p in VALID_PROXY_LIST]
+        json.dump(safe_proxies, f, indent=2)
+    logger.debug(f"💾 Список проксі збережено в {PROXY_CACHE_FILE}")
+
+
+# ============================================
+# ФІНАЛЬНІ НАЛАШТУВАННЯ
+# ============================================
+
+# Для зручності в коді
+PROXY_SETTINGS = VALID_PROXY_LIST[0]  # Перший проксі для прикладу
+
+logger.info("=" * 50)
+logger.info(f"🚀 Проект налаштовано для OLX")
+logger.info(f"📌 URL: {START_URL}")
+logger.info(f"📊 Макс. елементів: {MAX_ITEMS}")
+logger.info(f"🔌 Проксі: {len(VALID_PROXY_LIST)} шт.")
+logger.info("=" * 50)
+
+================================================================================
+📄 ФАЙЛ: src\state_manager.py
+================================================================================
+
+# This class is responsible for saving and loading scraper checkpoints
+import json
+from pathlib import Path
+from loguru import logger
+
+
+class StateManager:
+    def __init__(self, file_path: str = "data/checkpoint.json"):
+        self.file_path = Path(file_path)
+        self.file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    def save_checkpoint(self, url: str, gathered_count: int = 0):
+        """Save current scraping progress to a file"""
+        state = {
+            "last_url": url,
+            "count": gathered_count
+        }
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            json.dump(state, f, ensure_ascii=False, indent=4)
+        logger.debug(f"💾 Checkpoint saved: {url}")
+
+    def load_checkpoint(self) -> dict | None:
+        """Load saved progress if it exists"""
+        if self.file_path.exists():
+            try:
+                with open(self.file_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                logger.error(f"Error reading state file: {e}")
+        return None
+
+    def clear_checkpoint(self):
+        """Remove checkpoint file after successful completion"""
+        if self.file_path.exists():
+            self.file_path.unlink()
+            logger.info("🧹 Checkpoint removed (scraping completed).")
+
+================================================================================
+📄 ФАЙЛ: src\stealth.py
+================================================================================
+
+# src/stealth.py - ФІНАЛЬНА ВЕРСІЯ З ЕКСПОРТОМ
+"""
+Модуль ручного стелсу для Playwright з підтримкою конфігурації
+"""
+
+import random
+import asyncio
+from loguru import logger
+from src.stealth_config import StealthConfig, USA_CONFIG, UKRAINE_CONFIG, GOOGLE_CONFIG, LINKEDIN_CONFIG
+
+
+class ManualStealth:
+    """
+    Клас для ручного маскування автоматизації з конфігом
+    """
+
+    def __init__(self, config: StealthConfig):
+        self.config = config
+        logger.debug(f"📋 Конфіг: {config.timezone}")
+
+    async def create_context(self, browser):
+        """Створює контекст з налаштуваннями"""
+        context = await browser.new_context(
+            locale=self.config.languages[0],
+            timezone_id=self.config.timezone,
+            viewport={
+                'width': self.config.screen_size[0],
+                'height': self.config.screen_size[1]
+            },
+            extra_http_headers={
+                'Accept-Language': ', '.join(self.config.languages),
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+            }
+        )
+        logger.debug(f"📦 Контекст створено з locale: {self.config.languages[0]}")
+        return context
+
+    async def apply_to_page(self, page):
+        """Додаткові маскування"""
+        await page.add_init_script("""
+            // WebGL маскування
+            const getParameter = WebGLRenderingContext.prototype.getParameter;
+            WebGLRenderingContext.prototype.getParameter = function(parameter) {
+                if (parameter === 37445) return 'Intel Inc.';
+                if (parameter === 37446) return 'Intel Iris OpenGL Engine';
+                return getParameter.call(this, parameter);
+            };
+
+            // Ховаємо webdriver
+            Object.defineProperty(Object.getPrototypeOf(navigator), 'webdriver', {
+                get: () => undefined
+            });
+        """)
+        logger.debug("🕵️ Додаткові маскування застосовано")
+
+    async def check_languages(self, page):
+        """Перевіряє встановлені мови"""
+        langs = await page.evaluate("navigator.languages")
+        lang = await page.evaluate("navigator.language")
+        timezone = await page.evaluate("Intl.DateTimeFormat().resolvedOptions().timeZone")
+
+        logger.info(f"🔍 navigator.languages: {langs}")
+        logger.info(f"🔍 navigator.language: {lang}")
+        logger.info(f"🔍 Часовий пояс: {timezone}")
+
+        return langs
+
+
+# Фабрика для створення стелсу під сайт
+def get_stealth_for_site(site: str) -> ManualStealth:
+    """Повертає налаштований стелс для конкретного сайту"""
+    configs = {
+        'amazon': USA_CONFIG,
+        'ebay': USA_CONFIG,
+        'google': GOOGLE_CONFIG,
+        'linkedin': LINKEDIN_CONFIG,
+        'ukraine': UKRAINE_CONFIG,
+    }
+    config = configs.get(site, USA_CONFIG)
+    logger.debug(f"🎯 Створено стелс для сайту: {site}")
+    return ManualStealth(config)
+
+
+# ЕКСПОРТУЄМО ВСЕ, ЩО ПОТРІБНО
+__all__ = ['ManualStealth', 'get_stealth_for_site']
+
+================================================================================
+📄 ФАЙЛ: src\stealth_config.py
+================================================================================
+
+# src/stealth_config.py
+"""
+Конфігурація стелсу для різних сайтів
+"""
+
+from dataclasses import dataclass
+from typing import List, Optional
+import random
+
+
+@dataclass
+class StealthConfig:
+    """
+    Клас для налаштування параметрів стелсу
+    """
+
+    # Часовий пояс
+    timezone: str = 'Europe/Kiev'
+
+    # Мови браузера
+    languages: List[str] = None
+
+    # Розмір екрану
+    screen_size: tuple = (1920, 1080)
+
+    # WebGL налаштування
+    webgl_vendor: str = 'Intel Inc.'
+    webgl_renderer: str = 'Intel Iris OpenGL Engine'
+
+    def __post_init__(self):
+        if self.languages is None:
+            self.languages = ['uk-UA', 'uk', 'en-US', 'en', 'ru']
+
+
+# === КОНФІГИ ДЛЯ РІЗНИХ САЙТІВ ===
+
+UKRAINE_CONFIG = StealthConfig(
+    timezone='Europe/Kiev',
+    languages=['uk-UA', 'uk', 'ru', 'en-US', 'en'],
+    screen_size=(1366, 768)
+)
+
+USA_CONFIG = StealthConfig(
+    timezone='America/New_York',
+    languages=['en-US', 'en'],
+    screen_size=(1920, 1080)
+)
+
+GOOGLE_CONFIG = StealthConfig(
+    timezone='America/Los_Angeles',
+    languages=['en-US', 'en'],
+    screen_size=(1536, 864)
+)
+
+LINKEDIN_CONFIG = StealthConfig(
+    timezone='America/New_York',
+    languages=['en-US', 'en'],
+    screen_size=(1920, 1080)
+)
+
+TEST_CONFIG = StealthConfig(
+    timezone='Europe/Kiev',
+    languages=['uk-UA', 'uk', 'en-US', 'en'],
+    screen_size=(1920, 1080)
+)
+
+================================================================================
+📄 ФАЙЛ: src\utils.py
+================================================================================
+
+import random
+import asyncio
+from loguru import logger
+
+
+async def human_delay(min_sec=1, max_sec=3):
+    """Asynchronously simulate human thinking delay."""
+    sleep_time = random.uniform(min_sec, max_sec)
+    await asyncio.sleep(sleep_time)
+
+
+async def smooth_scroll(page):
+    """
+    Perform smooth scrolling with a "re-reading" effect
+    (occasionally scrolling slightly upward).
+    """
+    try:
+        total_height = await page.evaluate("document.body.scrollHeight")
+        current_scroll = 0
+
+        logger.debug("📜 Starting realistic scrolling...")
+
+        while current_scroll < total_height:
+            # Determine scroll step (downwards)
+            step = random.randint(400, 800)
+            current_scroll += step
+            await page.mouse.wheel(0, step)
+            await asyncio.sleep(random.uniform(0.4, 0.9))
+
+            # --- RE-READING EFFECT ---
+            # With a 15% probability, scroll slightly back up
+            if random.random() < 0.15 and current_scroll > 1000:
+                back_step = random.randint(-400, -200)
+                current_scroll += back_step
+                await page.mouse.wheel(0, back_step)
+                logger.debug("👀 Scrolled slightly upward (re-reading effect)")
+                await asyncio.sleep(random.uniform(1.0, 2.0))  # "Reading" pause
+
+            # Update page height (for dynamically loaded pages)
+            total_height = await page.evaluate("document.body.scrollHeight")
+
+            if current_scroll > 15000:  # Safety guard for infinite pages
+                break
+
+    except Exception as e:
+        logger.error(f"⚠️ Scrolling error: {e}")
+
+
+async def human_mouse_move(page):
+    """Simulate complex mouse movements with variable speed."""
+    try:
+        viewport = page.viewport_size or {'width': 1280, 'height': 720}
+
+        for _ in range(random.randint(2, 4)):
+            x = random.randint(50, viewport['width'] - 50)
+            y = random.randint(50, viewport['height'] - 50)
+
+            # steps=30–60 makes the movement slow and slightly shaky
+            await page.mouse.move(x, y, steps=random.randint(30, 60))
+            await asyncio.sleep(random.uniform(0.2, 0.6))
+
+    except Exception as e:
+        logger.debug(f"Mouse interaction skipped: {e}")
+
+================================================================================
+📊 СТАТИСТИКА:
+================================================================================
+📁 Папок з кодом: 3
+📄 Всього файлів: 23
+
+📊 По розширеннях:
+  (без розширення): 3 файлів
+  .md: 1 файлів
+  .py: 17 файлів
+  .txt: 1 файлів
+  .yaml: 1 файлів
+
+📊 По папках:
+  📁 .idea: 1 файлів
+  📁 .venv: 1 файлів
+  📁 pro_scraper_stealth_project3: 6 файлів
+  📁 src: 15 файлів
+
+🔒 .gitignore: Є
+================================================================================
